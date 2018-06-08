@@ -213,10 +213,9 @@ approx_adaptation_4C <- (sum(pdat1$wheat_approx4c) + sum(pdat2$corn_approx4c) + 
 approx_adaptation_5C <- (sum(pdat1$wheat_approx5c) + sum(pdat2$corn_approx5c) + sum(pdat3$cotton_approx5c))
 
 # Without adaptation
-pdat11 <- filter(pdat, wheat_y > 10000)
-pdat22 <- filter(pdat, corn_y > 10000)
-pdat33 <- filter(pdat, cotton_y > 10000)
-
+pdat11 <- filter(pdat, wheat_y > 0)
+pdat22 <- filter(pdat, corn_y > 0)
+pdat33 <- filter(pdat, cotton_y > 0)
 
 base_wo_adaptation <- sum(pdat11$wheat_y) + sum(pdat22$corn_y) + sum(pdat33$cotton_y)
 wo_adaptation_1c <- (sum(pdat11[which(pdat11$wheat_dydt_1c > 0), "wheat_dydt_1c"]) + sum(pdat22[which(pdat22$corn_dydt_1c > 0), "corn_dydt_1c"]) + sum(pdat33[which(pdat33$cotton_dydt_1c > 0), "cotton_dydt_1c"]))
@@ -231,6 +230,20 @@ wo_approx_adaptation_3c <- (sum(pdat11[which(pdat11$wheat_approx3c > 0), "wheat_
 wo_approx_adaptation_4c <- (sum(pdat11[which(pdat11$wheat_approx4c > 0), "wheat_approx4c"]) + sum(pdat22[which(pdat22$corn_approx4c > 0), "corn_approx4c"]) + sum(pdat33[which(pdat33$cotton_approx4c > 0), "cotton_approx4c"]))
 wo_approx_adaptation_5c <- (sum(pdat11[which(pdat11$wheat_approx5c > 0), "wheat_approx5c"]) + sum(pdat22[which(pdat22$corn_approx5c > 0), "corn_approx5c"]) + sum(pdat33[which(pdat33$cotton_approx5c > 0), "cotton_approx5c"]))
 
+
+# base_wo_adaptation <- sum(pdat11$wheat_y) + sum(pdat22$corn_y) + sum(pdat33$cotton_y)
+# wo_adaptation_1c <- (sum(pdat11$wheat_dydt_1c) + sum(pdat22$corn_dydt_1) + sum(pdat33$cotton_dydt_1c))
+# wo_adaptation_2c <- (sum(pdat11$wheat_dydt_2c) + sum(pdat22$corn_dydt_2c) + sum(pdat33$cotton_dydt_2c))
+# wo_adaptation_3c <- (sum(pdat11$wheat_dydt_3c) + sum(pdat22$corn_dydt_3c) + sum(pdat33$cotton_dydt_3c))
+# wo_adaptation_4c <- (sum(pdat11$wheat_dydt_4c) + sum(pdat22$corn_dydt_4c) + sum(pdat33$cotton_dydt_4c))
+# wo_adaptation_5c <- (sum(pdat11$wheat_dydt_5c) + sum(pdat22$corn_dydt_5c) + sum(pdat33$cotton_dydt_5c))
+# 
+# wo_approx_adaptation_1c <- (sum(pdat11$wheat_approx1c) + sum(pdat22$corn_approx1c) + sum(pdat33$cotton_approx1c))
+# wo_approx_adaptation_2c <- (sum(pdat11$wheat_approx2c) + sum(pdat22$corn_approx2c) + sum(pdat33$cotton_approx2c))
+# wo_approx_adaptation_3c <- (sum(pdat11$wheat_approx3c) + sum(pdat22$corn_approx3c) + sum(pdat33$cotton_approx3c))
+# wo_approx_adaptation_4c <- (sum(pdat11$wheat_approx4c) + sum(pdat22$corn_approx4c) + sum(pdat33$cotton_approx4c))
+# wo_approx_adaptation_5c <- (sum(pdat11$wheat_approx5c) + sum(pdat22$corn_approx5c) + sum(pdat33$cotton_approx5c))
+
 # Build main plot
 gdat <- data.frame(temp = 0:5,
                    adaptation = c(base_adaptation, adaptation_1c, adaptation_2c, adaptation_3c, adaptation_4c, adaptation_5c),
@@ -242,3 +255,7 @@ gdat$approx_adaptation_change <- (gdat$approx_adaptation - first(gdat$approx_ada
 gdat$wo_adaptation_change <- (gdat$wo_adaptation - first(gdat$wo_adaptation))/first(gdat$wo_adaptation)
 gdat$wo_approx_adaptation_change <- (gdat$wo_approx_adaptation - first(gdat$wo_approx_adaptation))/first(gdat$wo_approx_adaptation)
 gdat
+
+gplot <- select(gdat, temp, adaptation_change, approx_adaptation_change, wo_adaptation_change, wo_approx_adaptation_change)
+gplot <- gather(gplot, key = change, value = value, -temp)
+ggplot(gplot, aes(temp, value*100, color = change)) + geom_line()
