@@ -1,7 +1,9 @@
 library(ggplot2)
 library(tidyverse)
 library(ggthemes)
+library(gganimate)
 
+set.seed(123)
 # download.file("https://spideroak.com/share/NJXWQ3TXN5XWI2LMNQ/crop-choice-data/run/media/john/1TB/SpiderOak/Projects/crop-choice-and-adaptation/data/full_ag_data.rds",
              # destfile = "/Users/john/full_ag_data.rds", method = "auto")
 # dat <- readRDS("/Users/john/full_ag_data.rds")
@@ -32,7 +34,7 @@ ggplot(dat, aes(temp, y, color = crop)) + geom_line() + ylim(0, 20000) +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") 
 
-# Estimate production fn's
+ # Estimate production fn's
 wheat_fn <- function(x) return(-100*(x)^2 + 20000)
 corn_fn <- function(x) return(-250*(x - 15)^2 + 19000)
 cotton_fn <- function(x) return(-250*(x - 25)^2 + 17000)
@@ -42,220 +44,163 @@ wheat_dt <- function(x) return(-200*x)
 corn_dt <- function(x) return(-500*(x - 15))
 cotton_dt <- function(x) return(-500*(x - 25))
 
-# Calculate Negative Adaptation
-wheat_outdat <- data.frame()
-# Wheat adaptation calculation
-for (i in seq(0, 35, 0.10)){
-  delta_t <- wheat_fn(i + 1) - wheat_fn(i) 
-  dydt_1c <- wheat_fn(i + 1)
-  dydt_2c <- wheat_fn(i + 2)
-  dydt_3c <- wheat_fn(i + 3)
-  dydt_4c <- wheat_fn(i + 4)
-  dydt_5c <- wheat_fn(i + 5)
-  approx1c <- wheat_fn(i) + wheat_dt(i)
-  approx2c <- wheat_fn(i) + wheat_dt(i)*2
-  approx3c <- wheat_fn(i) + wheat_dt(i)*3
-  approx4c <- wheat_fn(i) + wheat_dt(i)*4
-  approx5c <- wheat_fn(i) + wheat_dt(i)*5
-  adaptation <- dydt - approx
-  indat <- data.frame(crop = "wheat", 
-                       temp = i,
-                       y = wheat_fn(i),
-                       delta_t = delta_t,
-                       dydt = dydt,
-                       dydt_1c = dydt_1c,
-                       dydt_2c = dydt_2c,
-                       dydt_3c = dydt_3c,
-                       dydt_4c = dydt_4c,
-                       dydt_5c = dydt_5c,
-                       approx1c = approx1c,
-                       approx2c = approx2c,
-                       approx3c = approx3c,
-                       approx4c = approx4c,
-                       approx5c = approx5c,
-                       adaptation = adaptation)
-  wheat_outdat <- rbind(wheat_outdat, indat)
-}
-wheat_outdat
+# Density fn
+phi <- approxfun(density(rnorm(35, 15, 7)))
+phi <- approxfun(runif(35, 0))
+
+# Real Integration fn
+int_wheatfn <- function(x) (wheat_fn(x + 2) - wheat_fn(x)) * phi(x)
+int_cornfn <- function(x) (corn_fn(x + 2) - corn_fn(x)) * phi(x)
+int_cottonfn <- function(x) (cotton_fn(x + 2) - cotton_fn(x)) * phi(x)
 
 
-corn_outdat <- data.frame()
-# Corn adaptation calculation
-for (i in seq(0, 35, 0.10)){
-  delta_t <- corn_fn(i + 1) - corn_fn(i) 
-  dydt_1c <- corn_fn(i + 1)
-  dydt_2c <- corn_fn(i + 2)
-  dydt_3c <- corn_fn(i + 3)
-  dydt_4c <- corn_fn(i + 4)
-  dydt_5c <- corn_fn(i + 5)
-  approx1c <- corn_fn(i) + corn_dt(i)
-  approx2c <- corn_fn(i) + corn_dt(i)*2
-  approx3c <- corn_fn(i) + corn_dt(i)*3
-  approx4c <- corn_fn(i) + corn_dt(i)*4
-  approx5c <- corn_fn(i) + corn_dt(i)*5
-  adaptation <- dydt - approx
-  indat <- data.frame(crop = "corn", 
-                       temp = i,
-                       y = corn_fn(i),
-                       delta_t = delta_t,
-                       dydt = dydt,
-                       dydt_1c = dydt_1c,
-                       dydt_2c = dydt_2c,
-                       dydt_3c = dydt_3c,
-                       dydt_4c = dydt_4c,
-                       dydt_5c = dydt_5c,
-                       approx1c = approx1c,
-                       approx2c = approx2c,
-                       approx3c = approx3c,
-                       approx4c = approx4c,
-                       approx5c = approx5c,
-                       adaptation = adaptation)
-  corn_outdat <- rbind(corn_outdat, indat)
-}
-corn_outdat
+# Approximate Integration fn 
+approxint_wheatfn <- function(x) (wheat_dt(x) * 2) * phi(x)
+approxint_cornfn <- function(x) (corn_dt(x) * 2) * phi(x)
+approxint_cottonfn <- function(x) (cotton_dt(x) * 2) * phi(x)
 
-cotton_outdat <- data.frame()
-# Cotton adaptation calculation
-for (i in seq(0, 35, 0.10)){
-  delta_t <- cotton_fn(i + 1) - cotton_fn(i) 
-  dydt_1c <- cotton_fn(i + 1)
-  dydt_2c <- cotton_fn(i + 2)
-  dydt_3c <- cotton_fn(i + 3)
-  dydt_4c <- cotton_fn(i + 4)
-  dydt_5c <- cotton_fn(i + 5)
-  approx1c <- cotton_fn(i) + cotton_dt(i)
-  approx2c <- cotton_fn(i) + cotton_dt(i)*2
-  approx3c <- cotton_fn(i) + cotton_dt(i)*3
-  approx4c <- cotton_fn(i) + cotton_dt(i)*4
-  approx5c <- cotton_fn(i) + cotton_dt(i)*5
-  adaptation <- dydt - approx
-  indat <- data.frame(crop = "cotton", 
-                       temp = i,
-                       y = cotton_fn(i),
-                       delta_t = delta_t,
-                       dydt = dydt,
-                       dydt_1c = dydt_1c,
-                       dydt_2c = dydt_2c,
-                       dydt_3c = dydt_3c,
-                       dydt_4c = dydt_4c,
-                       dydt_5c = dydt_5c,
-                       approx1c = approx1c,
-                       approx2c = approx2c,
-                       approx3c = approx3c,
-                       approx4c = approx4c,
-                       approx5c = approx5c,
-                       adaptation = adaptation)
-  cotton_outdat <- rbind(cotton_outdat, indat)
-}
-cotton_outdat
-
-# Calculate Positive Adaptation
-pwheat <- data.frame(temp = wheat_outdat$temp,
-                    wheat_y = wheat_outdat$y,
-                    wheat_dydt_1c = wheat_outdat$dydt_1c,
-                    wheat_dydt_2c = wheat_outdat$dydt_2c,
-                    wheat_dydt_3c = wheat_outdat$dydt_3c,
-                    wheat_dydt_4c = wheat_outdat$dydt_4c,
-                    wheat_dydt_5c = wheat_outdat$dydt_5c,
-                    wheat_approx1c = wheat_outdat$approx1c,
-                    wheat_approx2c = wheat_outdat$approx2c,
-                    wheat_approx3c = wheat_outdat$approx3c,
-                    wheat_approx4c = wheat_outdat$approx4c,
-                    wheat_approx5c = wheat_outdat$approx5c)
-
-pcorn <- data.frame(temp = corn_outdat$temp,
-                     corn_y = corn_outdat$y,
-                    corn_dydt_1c = corn_outdat$dydt_1c,
-                    corn_dydt_2c = corn_outdat$dydt_2c,
-                    corn_dydt_3c = corn_outdat$dydt_3c,
-                    corn_dydt_4c = corn_outdat$dydt_4c,
-                    corn_dydt_5c = corn_outdat$dydt_5c,
-                    corn_approx1c = corn_outdat$approx1c,
-                    corn_approx2c = corn_outdat$approx2c,
-                    corn_approx3c = corn_outdat$approx3c,
-                    corn_approx4c = corn_outdat$approx4c,
-                    corn_approx5c = corn_outdat$approx5c)
-
-pcotton <- data.frame(temp = cotton_outdat$temp,
-                     cotton_y = cotton_outdat$y,
-                    cotton_dydt_1c = cotton_outdat$dydt_1c,
-                    cotton_dydt_2c = cotton_outdat$dydt_2c,
-                    cotton_dydt_3c = cotton_outdat$dydt_3c,
-                    cotton_dydt_4c = cotton_outdat$dydt_4c,
-                    cotton_dydt_5c = cotton_outdat$dydt_5c,
-                    cotton_approx1c = cotton_outdat$approx1c,
-                    cotton_approx2c = cotton_outdat$approx2c,
-                    cotton_approx3c = cotton_outdat$approx3c,
-                    cotton_approx4c = cotton_outdat$approx4c,
-                    cotton_approx5c = cotton_outdat$approx5c)
-
-pdat <- data.frame(temp = seq(0, 35, 0.10))
-pdat <- left_join(pdat, pwheat, by = "temp")
-pdat <- left_join(pdat, pcorn, by = "temp")
-pdat <- left_join(pdat, pcotton, by = "temp")
-
-# With adaptation
-pdat1 <- filter(pdat, temp < 8.4)
-pdat2 <- filter(pdat, temp > 8.4 & temp < 19.2)
-pdat3 <- filter(pdat, temp > 19.2)
-
-base_adaptation <- (sum(pdat1$wheat_y) + sum(pdat2$corn_y) + sum(pdat3$cotton_y))
-adaptation_1c <- (sum(pdat1$wheat_dydt_1c) + sum(pdat2$corn_dydt_1c) + sum(pdat3$cotton_dydt_1c))
-adaptation_2c <- (sum(pdat1$wheat_dydt_2c) + sum(pdat2$corn_dydt_2c) + sum(pdat3$cotton_dydt_2c))
-adaptation_3c <- (sum(pdat1$wheat_dydt_3c) + sum(pdat2$corn_dydt_3c) + sum(pdat3$cotton_dydt_3c))
-adaptation_4c <- (sum(pdat1$wheat_dydt_4c) + sum(pdat2$corn_dydt_4c) + sum(pdat3$cotton_dydt_4c))
-adaptation_5c <- (sum(pdat1$wheat_dydt_5c) + sum(pdat2$corn_dydt_5c) + sum(pdat3$cotton_dydt_5c))
-
-approx_adaptation_1C <- (sum(pdat1$wheat_approx1c) + sum(pdat2$corn_approx1c) + sum(pdat3$cotton_approx1c))
-approx_adaptation_2C <- (sum(pdat1$wheat_approx2c) + sum(pdat2$corn_approx2c) + sum(pdat3$cotton_approx2c))
-approx_adaptation_3C <- (sum(pdat1$wheat_approx3c) + sum(pdat2$corn_approx3c) + sum(pdat3$cotton_approx3c))
-approx_adaptation_4C <- (sum(pdat1$wheat_approx4c) + sum(pdat2$corn_approx4c) + sum(pdat3$cotton_approx4c))
-approx_adaptation_5C <- (sum(pdat1$wheat_approx5c) + sum(pdat2$corn_approx5c) + sum(pdat3$cotton_approx5c))
-
-# Without adaptation
-pdat11 <- filter(pdat, wheat_y > 0)
-pdat22 <- filter(pdat, corn_y > 0)
-pdat33 <- filter(pdat, cotton_y > 0)
-
-base_wo_adaptation <- sum(pdat11$wheat_y) + sum(pdat22$corn_y) + sum(pdat33$cotton_y)
-wo_adaptation_1c <- (sum(pdat11[which(pdat11$wheat_dydt_1c > 0), "wheat_dydt_1c"]) + sum(pdat22[which(pdat22$corn_dydt_1c > 0), "corn_dydt_1c"]) + sum(pdat33[which(pdat33$cotton_dydt_1c > 0), "cotton_dydt_1c"]))
-wo_adaptation_2c <- (sum(pdat11[which(pdat11$wheat_dydt_2c > 0), "wheat_dydt_2c"]) + sum(pdat22[which(pdat22$corn_dydt_2c > 0), "corn_dydt_2c"]) + sum(pdat33[which(pdat33$cotton_dydt_2c > 0), "cotton_dydt_2c"]))
-wo_adaptation_3c <- (sum(pdat11[which(pdat11$wheat_dydt_3c > 0), "wheat_dydt_3c"]) + sum(pdat22[which(pdat22$corn_dydt_3c > 0), "corn_dydt_3c"]) + sum(pdat33[which(pdat33$cotton_dydt_3c > 0), "cotton_dydt_3c"]))
-wo_adaptation_4c <- (sum(pdat11[which(pdat11$wheat_dydt_4c > 0), "wheat_dydt_4c"]) + sum(pdat22[which(pdat22$corn_dydt_4c > 0), "corn_dydt_4c"]) + sum(pdat33[which(pdat33$cotton_dydt_4c > 0), "cotton_dydt_4c"]))
-wo_adaptation_5c <- (sum(pdat11[which(pdat11$wheat_dydt_5c > 0), "wheat_dydt_5c"]) + sum(pdat22[which(pdat22$corn_dydt_5c > 0), "corn_dydt_5c"]) + sum(pdat33[which(pdat33$cotton_dydt_5c > 0), "cotton_dydt_5c"]))
-
-wo_approx_adaptation_1c <- (sum(pdat11[which(pdat11$wheat_approx1c > 0), "wheat_approx1c"]) + sum(pdat22[which(pdat22$corn_approx1c > 0), "corn_approx1c"]) + sum(pdat33[which(pdat33$cotton_approx1c > 0), "cotton_approx1c"]))
-wo_approx_adaptation_2c <- (sum(pdat11[which(pdat11$wheat_approx2c > 0), "wheat_approx2c"]) + sum(pdat22[which(pdat22$corn_approx2c > 0), "corn_approx2c"]) + sum(pdat33[which(pdat33$cotton_approx2c > 0), "cotton_approx2c"]))
-wo_approx_adaptation_3c <- (sum(pdat11[which(pdat11$wheat_approx3c > 0), "wheat_approx3c"]) + sum(pdat22[which(pdat22$corn_approx3c > 0), "corn_approx3c"]) + sum(pdat33[which(pdat33$cotton_approx3c > 0), "cotton_approx3c"]))
-wo_approx_adaptation_4c <- (sum(pdat11[which(pdat11$wheat_approx4c > 0), "wheat_approx4c"]) + sum(pdat22[which(pdat22$corn_approx4c > 0), "corn_approx4c"]) + sum(pdat33[which(pdat33$cotton_approx4c > 0), "cotton_approx4c"]))
-wo_approx_adaptation_5c <- (sum(pdat11[which(pdat11$wheat_approx5c > 0), "wheat_approx5c"]) + sum(pdat22[which(pdat22$corn_approx5c > 0), "corn_approx5c"]) + sum(pdat33[which(pdat33$cotton_approx5c > 0), "cotton_approx5c"]))
-
-
-# base_wo_adaptation <- sum(pdat11$wheat_y) + sum(pdat22$corn_y) + sum(pdat33$cotton_y)
-# wo_adaptation_1c <- (sum(pdat11$wheat_dydt_1c) + sum(pdat22$corn_dydt_1) + sum(pdat33$cotton_dydt_1c))
-# wo_adaptation_2c <- (sum(pdat11$wheat_dydt_2c) + sum(pdat22$corn_dydt_2c) + sum(pdat33$cotton_dydt_2c))
-# wo_adaptation_3c <- (sum(pdat11$wheat_dydt_3c) + sum(pdat22$corn_dydt_3c) + sum(pdat33$cotton_dydt_3c))
-# wo_adaptation_4c <- (sum(pdat11$wheat_dydt_4c) + sum(pdat22$corn_dydt_4c) + sum(pdat33$cotton_dydt_4c))
-# wo_adaptation_5c <- (sum(pdat11$wheat_dydt_5c) + sum(pdat22$corn_dydt_5c) + sum(pdat33$cotton_dydt_5c))
+# # Marginal Effect
+# integrate(approxint_wheatfn, 0.1, 9.4)[[1]] + integrate(approxint_cornfn, 9.5, 20.4)[[1]] + integrate(approxint_cottonfn, 20.5, 35)[[1]]
 # 
-# wo_approx_adaptation_1c <- (sum(pdat11$wheat_approx1c) + sum(pdat22$corn_approx1c) + sum(pdat33$cotton_approx1c))
-# wo_approx_adaptation_2c <- (sum(pdat11$wheat_approx2c) + sum(pdat22$corn_approx2c) + sum(pdat33$cotton_approx2c))
-# wo_approx_adaptation_3c <- (sum(pdat11$wheat_approx3c) + sum(pdat22$corn_approx3c) + sum(pdat33$cotton_approx3c))
-# wo_approx_adaptation_4c <- (sum(pdat11$wheat_approx4c) + sum(pdat22$corn_approx4c) + sum(pdat33$cotton_approx4c))
-# wo_approx_adaptation_5c <- (sum(pdat11$wheat_approx5c) + sum(pdat22$corn_approx5c) + sum(pdat33$cotton_approx5c))
+# # Real Effect
+# integrate(int_wheatfn, 0.1, 9.4)[[1]] + integrate(int_cornfn, 9.5, 20.4)[[1]] + integrate(int_cottonfn, 20.5, 35)[[1]]
 
-# Build main plot
-gdat <- data.frame(temp = 0:5,
-                   adaptation = c(base_adaptation, adaptation_1c, adaptation_2c, adaptation_3c, adaptation_4c, adaptation_5c),
-                   approx_adaptation = c(base_adaptation, approx_adaptation_1C, approx_adaptation_2C, approx_adaptation_3C, approx_adaptation_4C, approx_adaptation_5C),
-                   wo_adaptation = c(base_wo_adaptation, wo_adaptation_1c, wo_adaptation_2c, wo_adaptation_3c, wo_adaptation_4c, wo_adaptation_5c),
-                   wo_approx_adaptation = c(base_wo_adaptation, wo_approx_adaptation_1c, wo_approx_adaptation_2c, wo_approx_adaptation_3c, wo_approx_adaptation_4c, wo_approx_adaptation_5c))
-gdat$adaptation_change <- (gdat$adaptation - first(gdat$adaptation))/first(gdat$adaptation)
-gdat$approx_adaptation_change <- (gdat$approx_adaptation - first(gdat$approx_adaptation))/first(gdat$approx_adaptation)
-gdat$wo_adaptation_change <- (gdat$wo_adaptation - first(gdat$wo_adaptation))/first(gdat$wo_adaptation)
-gdat$wo_approx_adaptation_change <- (gdat$wo_approx_adaptation - first(gdat$wo_approx_adaptation))/first(gdat$wo_approx_adaptation)
-gdat
+outdat <- data.frame()
+for (i in 0:5){
+# With tangent lines
+  wtandat <- dat
+  wtandat$yy <- wheat_fn(wtandat$temp) - wheat_dt(wtandat$temp)*i
+  wtandat$xx <- wtandat$temp - 2
+  wtandat$yend <- wheat_fn(wtandat$temp) + wheat_dt(wtandat$temp)*i
+  wtandat$xend <- wtandat$temp + 2
+  wtandat$approx <- round((wheat_dt(wtandat$temp)*i) * phi(wtandat$temp), 2)
+  wtandat$real <- round((wheat_fn(wtandat$temp + i) - wheat_fn(wtandat$temp))* phi(wtandat$temp), 2)
+  wtandat <- filter(wtandat, crop == "Wheat" & temp <= 9.4)
+  
+  ctandat <- dat
+  ctandat$yy <- corn_fn(ctandat$temp) - corn_dt(ctandat$temp)*i
+  ctandat$xx <- ctandat$temp - 2
+  ctandat$yend <- corn_fn(ctandat$temp) + corn_dt(ctandat$temp)*i
+  ctandat$xend <- ctandat$temp + 2
+  ctandat$approx <- round((wheat_dt(ctandat$temp)*i)* phi(ctandat$temp), 2)
+  ctandat$real <- round((wheat_fn(ctandat$temp + i) - wheat_fn(ctandat$temp)) * phi(ctandat$temp), 2)
+  ctandat <- filter(ctandat, crop == "Corn" & (temp >= 9.4 & temp <= 20.4))
+  
+  cttandat <- dat
+  cttandat$yy <- cotton_fn(cttandat$temp) - cotton_dt(cttandat$temp)*i
+  cttandat$xx <- cttandat$temp - 2
+  cttandat$yend <- cotton_fn(cttandat$temp) + cotton_dt(cttandat$temp)*i
+  cttandat$xend <- cttandat$temp + 2
+  cttandat$approx <- round((wheat_dt(cttandat$temp)*i)* phi(cttandat$temp), 2)
+  cttandat$real <- round((wheat_fn(cttandat$temp + i) - wheat_fn(cttandat$temp))* phi(cttandat$temp), 2)
+  cttandat <- filter(cttandat, crop == "Cotton" & temp >= 20.4)
+  
+  tandat <- rbind(wtandat, ctandat, cttandat)
+  tandat$ctemp <- i
+  tandat$approx_cumsum <- cumsum(tandat$approx)
+  tandat$real_cumsum <- cumsum(tandat$real)
+  indat <- data.frame(ctemp = i, 
+                      approx = last(tandat$approx_cumsum),
+                      real = last(tandat$real_cumsum))
+  outdat <- rbind(outdat, indat)
+}
+outdat
 
-gplot <- select(gdat, temp, adaptation_change, approx_adaptation_change, wo_adaptation_change, wo_approx_adaptation_change)
-gplot <- gather(gplot, key = change, value = value, -temp)
-ggplot(gplot, aes(temp, value*100, color = change)) + geom_line()
+pdat <- gather(outdat, key = est, value = value, -ctemp)
+ggplot(pdat, aes(ctemp, value, color = est)) + 
+  theme_tufte(base_size = 12) +
+  geom_point() + 
+  geom_line() +
+  xlab("Change in Temperature (C)") +
+  ylab("Damage to Value of Activity") +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  geom_text(x = 4.5, y = -105000, label = "Approximate Value", color = "#F8766D") +
+  geom_text(x = 4.25, y = -170000, label = "Real Value", color = "#00BFC4") +
+  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
+  theme(legend.position = "none",
+    legend.title = element_blank())
+ggsave(filename = "damage_va.pdf", width = 6, height = 4)
+
+  
+  
+  
+  #-----------------------------------------------------
+# Loop through temp
+# outdat <- data.frame()
+# for (t in 0:5){
+#   
+#   # Update functions
+#   if (t == 0){
+#     int_wheatfn <- function(x) (wheat_fn(x + 0) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 0) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 0) - cotton_fn(x)) * phi(x)
+#     # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 0
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 0
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 0
+#   }
+#   
+#   if (t == 1){
+#     int_wheatfn <- function(x) (wheat_fn(x + 1) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 1) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 1) - cotton_fn(x)) * phi(x)
+#      # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 1
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 1
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 1
+#     }
+#   
+#   if (t == 2){
+#     int_wheatfn <- function(x) (wheat_fn(x + 2) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 2) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 2) - cotton_fn(x)) * phi(x)
+#     # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 2
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 2
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 2
+#     }
+#   
+#   if (t == 3){
+#     int_wheatfn <- function(x) (wheat_fn(x + 3) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 3) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 3) - cotton_fn(x)) * phi(x)
+#     # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 3
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 3
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 3
+#     }
+#   
+#   if (t == 4){
+#     int_wheatfn <- function(x) (wheat_fn(x + 4) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 4) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 4) - cotton_fn(x)) * phi(x)
+#     
+#     # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 4
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 4
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 4
+#   }
+#     
+#   if (t == 5){
+#     int_wheatfn <- function(x) (wheat_fn(x + 5) - wheat_fn(x)) * phi(x)
+#     int_cornfn <- function(x) (corn_fn(x + 5) - corn_fn(x)) * phi(x)
+#     int_cottonfn <- function(x) (cotton_fn(x + 5) - cotton_fn(x)) * phi(x)
+#     # Approximate Integration fn 
+#     approxint_wheatfn <- function(x) (wheat_dt(x)) * phi(x) * 5
+#     approxint_cornfn <- function(x) (corn_dt(x)) * phi(x) * 5
+#     approxint_cottonfn <- function(x) (cotton_dt(x)) * phi(x) * 5
+#   }
+#    # Marginal Effect
+#   me <- integrate(approxint_wheatfn, 0, 9.4)[[1]] + integrate(approxint_cornfn, 9.4, 20.4)[[1]] + integrate(approxint_cottonfn, 20.4, 35)[[1]]
+# 
+#   # Real Effect
+#   re <- integrate(int_wheatfn, 0, 9.4)[[1]] + integrate(int_cornfn, 9.4, 20.4)[[1]] + integrate(int_cottonfn, 20.4, 35)[[1]]
+#  
+#   indat <- data.frame(temp = t, me = me, re = re)
+#   outdat <- rbind(outdat, indat)
+#   
+#     }
+# outdat
+# 
+# 
