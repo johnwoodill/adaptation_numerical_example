@@ -1,8 +1,18 @@
 library(ggplot2)
 library(ggthemes)
 library(tidyverse)
+library(cowplot)
 
 set.seed(123)
+
+  wheat_fn <- function(x) return(-100*(x)^2 + 20000)
+  corn_fn <- function(x) return(-250*(x - 15)^2 + 19000)
+  cotton_fn <- function(x) return(-250*(x - 25.433)^2 + 17000)
+  
+  # First Derivate w.r.t. t
+  wheat_dt <- function(x) return(-200*x)
+  corn_dt <- function(x) return(-500*(x - 15))
+  cotton_dt <- function(x) return(-500*(x - 25.433))
 
 # Mendelsohn Plot
   x <- seq(0, 40, 0.1)
@@ -33,7 +43,52 @@ set.seed(123)
     geom_point(aes(17.19, cotton_fn(17.19))) +
     geom_point(aes(33.6792, cotton_fn(33.6792)))
   
+p1 <- ggplot(dat, aes(temp, y, color = crop)) + geom_line() + ylim(-1, 23000) +
+    theme_tufte(base_size = 12) +
+    ylab("Value of Activity") +
+    xlab(NULL) +
+    annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+    annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+    theme(legend.position = "none",
+          plot.margin = unit(c(0, 0, 4, 0), "cm")) +
+    annotate("text", x = 3, y = 23000, label = "Wheat", color = "red") +
+    annotate("text", x = 15, y = 23000, label = "Corn", color = "green") +
+    annotate("text", x = 26, y = 23000, label = "Cotton", color = "blue")
+p1    
 
+set.seed(1234)
+densdat <- rnorm(3510, 15, 7)
+densplot <- ggplot(NULL) + geom_density(aes(densdat), fill = "grey95") +
+  # geom_density(fill = "grey95") + 
+  # xlim(13, 23) + 
+  # ylim(0, 0.15) +
+  theme_tufte(base_size = 12) +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  xlab("Climate (t)") +
+  ylab("Density") +
+      theme(legend.position = "none",
+        # axis.title.x=element_blank(),
+        # axis.title.y=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.box.background = element_rect(colour = "grey"),
+        legend.title = element_blank(),
+        legend.key = element_rect(fill = NA, color = NA),
+        legend.text=element_text(size=8)) + 
+  # geom_segment(aes(x = 15.2, xend = 15.2, y = 0, yend = .15), linetype = 'dashed', size = .25) +
+  # annotate("text", x = 22.5, y = .10, label=TeX("$\\mathbf{\\phi}", output = "character"), parse=TRUE, size = 4) +
+  # annotate("text", x = 22.7, y = .10, label=c("(t)"), parse=TRUE, size = 3) +
+  scale_x_continuous(limits = c(0, 35)) 
+
+densplot
+
+ggdraw() + draw_plot(p1, 0.005, width = 0.98) +
+  draw_plot(densplot, 0.055, height = .30, width = .98) 
+ggsave("figures/numerical_example_baseplot.pdf", width = 6, height = 5)
+ 
 CalcAdaptation <- function(density, delta){
   # Functions
   wheat_fn <- function(x) return(-100*(x)^2 + 20000)
@@ -182,20 +237,62 @@ rbind(CalcAdaptation(phi, 0),
 # 5 -28.654158    -22.729904
 # 6 -42.920735    -35.515417
 
+u1 <- rbind(CalcAdaptation(approxfun(density(runif(35, 3, 30))), 0), 
+             CalcAdaptation(approxfun(density(runif(35, 3, 30))), 1), 
+             CalcAdaptation(approxfun(density(runif(35, 3, 30))), 2), 
+             CalcAdaptation(approxfun(density(runif(35, 3, 30))), 3),
+             CalcAdaptation(approxfun(density(runif(35, 3, 30))), 4),
+             CalcAdaptation(approxfun(density(runif(35, 3, 30))), 5))
+u1$distr <- "Uniform (3, 30)"
 
-dat <- rbind(CalcAdaptation(phi, 0), 
-             CalcAdaptation(phi, 1), 
-             CalcAdaptation(phi, 2), 
-             CalcAdaptation(phi, 3),
-             CalcAdaptation(phi, 4),
-             CalcAdaptation(phi, 5))
+u2 <- rbind(CalcAdaptation(approxfun(density(runif(35, 5, 32))), 0), 
+             CalcAdaptation(approxfun(density(runif(35, 5, 32))), 1), 
+             CalcAdaptation(approxfun(density(runif(35, 5, 32))), 2), 
+             CalcAdaptation(approxfun(density(runif(35, 5, 32))), 3),
+             CalcAdaptation(approxfun(density(runif(35, 5, 32))), 4),
+             CalcAdaptation(approxfun(density(runif(35, 5, 32))), 5))
+u2$distr <- "Uniform (5, 32)"
 
-dat
+n1 <- rbind(CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 0), 
+             CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 1), 
+             CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 2), 
+             CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 3),
+             CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 4),
+             CalcAdaptation(approxfun(density(rnorm(35, 15, 7))), 5))
+n1$distr <- "Normal (15, 7)"
+
+n2 <- rbind(CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 0), 
+             CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 1), 
+             CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 2), 
+             CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 3),
+             CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 4),
+             CalcAdaptation(approxfun(density(rnorm(35, 17, 10))), 5))
+n2$distr <- "Normal (17, 10)"
+
+dat <- rbind(u1, u2, n1, n2)
 
 # Plot percentage change
-pdat <- select(dat, delta, marginal_ch, real_ch)
-pdat <- gather(pdat, key = change, value = value, -delta)
-pdat
+# pdat <- select(dat, delta, marginal_ch, real_ch)
+# pdat <- gather(pdat, key = change, value = value, -delta)
+# pdat
+# 
+# ggplot(pdat, aes(delta, value, color = change)) + geom_line() + geom_point(size = 0.5) +
+#     theme_tufte(base_size = 12) +
+#     ylab("% Change in \n Value of Activity") +
+#     xlab("Temperature (C)") +
+#     annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+#     annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+#     annotate("text", x = 4.2, y = -2, label = "Approximate Effect", color = "red", size = 3.5) +
+#     annotate("text", x = 4.2, y = -20, label = "Real Effect", color = "#00BFC4", size = 3.5) +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "grey") +
+#   theme(legend.position = "none") +
+#   scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C"))
+# 
+# ggsave("figures/adaptation_example_plot_1.pdf", width = 6, height = 4)
+
+pdat <- select(dat, delta, adaptation_ch, real_ch, distr)
+pdat <- gather(pdat, key = change, value = value, -delta, -distr)
+pdat$distr <- factor(pdat$distr, levels = c("Uniform (3, 30)", "Uniform (5, 32)", "Normal (15, 7)", "Normal (17, 10)"))
 
 ggplot(pdat, aes(delta, value, color = change)) + geom_line() + geom_point(size = 0.5) +
     theme_tufte(base_size = 12) +
@@ -203,27 +300,10 @@ ggplot(pdat, aes(delta, value, color = change)) + geom_line() + geom_point(size 
     xlab("Temperature (C)") +
     annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
     annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
-    annotate("text", x = 4.2, y = -2, label = "Approximate Effect", color = "red", size = 3.5) +
-    annotate("text", x = 4.2, y = -20, label = "Real Effect", color = "#00BFC4", size = 3.5) +
+    annotate("text", x = 4.4, y = -15, label = "Adaptation + NL", color = "red", size = 2.5) +
+    annotate("text", x = 3, y = -28, label = "Total Effect", color = "#00BFC4", size = 2.5) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey") +
   theme(legend.position = "none") +
-  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C"))
-
-ggsave("figures/adaptation_example_plot_1.pdf", width = 6, height = 4)
-
-pdat <- select(dat, delta, adaptation_ch, real_ch)
-pdat <- gather(pdat, key = change, value = value, -delta)
-pdat
-
-ggplot(pdat, aes(delta, value, color = change)) + geom_line() + geom_point(size = 0.5) +
-    theme_tufte(base_size = 12) +
-    ylab("% Change in \n Value of Activity") +
-    xlab("Temperature (C)") +
-    annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
-    annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
-    annotate("text", x = 4.3, y = -15, label = "Adaptation + NL", color = "red", size = 3.5) +
-    annotate("text", x = 3, y = -22, label = "Real Effect", color = "#00BFC4", size = 3.5) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey") +
-  theme(legend.position = "none") +
-  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C"))
-ggsave("figures/adapatation_real_effect_plot.pdf", width = 6, height = 4)
+  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
+  facet_wrap(~distr)
+ggsave("figures/adapatation_total_effect_plot.pdf", width = 6, height = 4)
