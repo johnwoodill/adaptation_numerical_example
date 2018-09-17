@@ -16,12 +16,15 @@ set.seed(123)
 
 # Mendelsohn Plot
   x <- seq(0, 40, 0.1)
-  wheat <- data.frame(y = -100*(x)^2 + 20000, temp = x, crop = "Wheat")
-  # plot(wheat$temp, wheat$y)
+  wheat <- data.frame(y = -100*(x)^3 + -100(x - 5)^2 + 20000, temp = x, crop = "Wheat")
+  plot(wheat$temp, wheat$y)
   
+  x <- seq(-10, 10, 0.1)
+  wheat = data.frame(y = -100*((x + 4)^2)*((x-2)^2)*(x-6)*(x-8) + 20000, temp = x, crop = "Wheat")
+  plot(wheat$temp, wheat$y)
   # x <- seq(6, 27, 0.1)
-  corn <- data.frame(y = -250*(x - 15)^2 + 19000, temp = x, crop = "Corn")
-  # plot(corn$temp, corn$y)
+  corn <- data.frame(y = -250*(x - 20)^2 + 19000, temp = x, crop = "Corn")
+  plot(corn$temp, corn$y)
   
   # x <- seq(15, 35, 0.1)
   cotton <- data.frame(y = -250*(x - 25.433)^2 + 17000, temp = x, crop = "Cotton")
