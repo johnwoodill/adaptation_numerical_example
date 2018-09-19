@@ -1,4 +1,5 @@
 library(tidyverse)
+library(ggthemes)
 library(cowplot)
 
 mdat <- as.data.frame(readRDS("data/full_ag_data.rds"))
@@ -74,13 +75,41 @@ dplot <- data.frame(crop = rep(c("Corn", "Cotton", "Wheat"), each = 512),
                     y = c(corn_dens$y*sum(dat$corn_mrev*dat$corn_yield), cotton_dens$y*sum(dat$cotton_mrev*dat$cotton_yield), 
                           10*wheat_dens$y*sum(dat$wheat_mrev*dat$wheat_yield)))
 
-p1 <- ggplot(dplot, aes(x = x, y = y, color = crop)) + 
-  geom_line() + xlab('Average Temperature (C)') +
-  ylab("Value of Activity \n (yield * avg price)") + 
-  theme(legend.position = 'top')
+p1 <- ggplot(dplot, aes(x = x, y = y/1000000, color = crop)) + 
+  theme_tufte() +    
+  geom_line() + 
+  #xlab('Average Temperature (C)') +
+  xlab(NULL) + 
+  ylab("Value of Activity \n ($1 million)") + 
+  annotate("text", x = 12, y = 14, label = "Wheat", color = "blue", size = 4) +
+  annotate("text", x = 16, y = 29, label = "Corn", color = "red", size = 4) +
+  annotate("text", x = 21, y = 29, label = "Cotton", color = "green", size = 4) +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  theme(legend.position = 'top') + theme(
+                         #legend.position = c(0.05, 0.9),
+                         #legend.title = element_blank(),
+                         #legend.background = element_rect(
+                         #        size=0.5, linetype="solid", 
+                         #\       colour = "grey"),
+                         legend.position = "none",
+                         axis.text.x = element_blank(),
+                         #axis.text.y = element_blank(),
+                         axis.ticks.x = element_blank(),
+                         #axis.ticks.y = element_blank(),
+                         #panel.border = element_rect(fill = NA),
+                         plot.margin = unit(c(0, 0, 3, 0), "cm")) 
 p1
 p2 <- ggplot(dat, aes(tavg)) + 
-  geom_density() + 
-  xlab("Average Temperature(C) - phi(c)")
+  ylim(0, 0.18) +
+  theme_tufte() +
+  geom_density(color = "grey") +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  ylab("Density") +
+  scale_x_continuous(breaks = 0:30) +
+  xlab("Average Temperature(C)")
+p2
+ggdraw() + draw_plot(p1) + draw_plot(p2, 0, height = .30, width = 1.01)
+ggsave("figures/empirical_graph.pdf", width = 6, height = 4)
 
-plot_grid(p1, p2, ncol = 1)
