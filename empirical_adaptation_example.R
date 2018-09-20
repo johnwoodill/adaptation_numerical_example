@@ -63,7 +63,6 @@ hay_dens <- density(dat$tavg, weights = dat$hay_yield*dat$hay_a/sum(dat$hay_yiel
 soybean_dens <- density(dat$tavg, weights = dat$soybean_yield*dat$soybean_a/sum(dat$soybean_yield*dat$soybean_a))
 wheat_dens <- density(dat$tavg, weights = dat$wheat_yield*dat$wheat_a/sum(dat$wheat_yield*dat$wheat_a))
 
-
 # dplot <- data.frame(crop = rep(c("Corn", "Cotton", "Hay", "Wheat", "Soybean"), each = 512),
 #                     x = c(corn_dens$x, cotton_dens$x, hay_dens$x, wheat_dens$x, soybean_dens$x),
 #                     y = c(corn_dens$y*sum(dat$corn_mrev*dat$corn_yield), cotton_dens$y*sum(dat$cotton_mrev*dat$cotton_yield), 
@@ -100,10 +99,11 @@ p1 <- ggplot(dplot, aes(x = x, y = y/1000000, color = crop)) +
                          #panel.border = element_rect(fill = NA),
                          plot.margin = unit(c(0, 0, 3, 0), "cm")) 
 p1
+dat$acres = rowSums(dat[, c("wheat_a", "corn_a", "cotton_a")], na.rm = TRUE)
 p2 <- ggplot(dat, aes(tavg)) + 
   ylim(0, 0.18) +
   theme_tufte() +
-  geom_density(color = "grey") +
+  geom_density(aes(weight = acres/sum(acres)), color = "grey") +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
   ylab("Density") +
