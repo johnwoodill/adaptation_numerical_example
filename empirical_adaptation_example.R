@@ -48,7 +48,8 @@ dat$hay_rev <- dat$hay_yield*mean(dat$hay_mprice)
 dat$wheat_rev <- dat$wheat_yield*mean(dat$wheat_mprice)
 dat$soybean_rev <- dat$soybean_yield*mean(dat$soybean_mprice)
 
-dat$ftavg <- floor(dat$tavg)
+# dat$ftavg <- floor(dat$tavg)
+dat$ftavg <- cut(dat$tavg, 30, labels = 1:30)
 ddat <- dat %>% 
   group_by(ftavg) %>% 
   summarise(corn_rev = mean(corn_rev, na.rm = TRUE),
@@ -58,7 +59,7 @@ ddat <- dat %>%
             soybean_rev = mean(soybean_rev, na.rm = TRUE))
 
 ddpdat <- gather(ddat, key = crop_rev, value = value, -ftavg)
-ggplot(ddpdat, aes(x = ftavg, y = log(1+value), color = crop_rev)) + 
+ggplot(ddpdat, aes(x = as.numeric(as.character(ftavg)), y = log(1+value), color = crop_rev)) + 
   geom_line() +
   facet_wrap(~crop_rev) +
   theme(legend.position = 'none') +
