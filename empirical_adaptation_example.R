@@ -14,27 +14,8 @@ remove_outliers <- function(x, na.rm = TRUE, ...) {
   y
 }
 
-# 1) take average yield over 10 years.
-# 2) take average price over 10 years.
-# 3) find average total acreage in all five crops over 10 years.
-
-# dat <- filter(dat, corn_mrev > 0 & !is.na(corn_mrev) & !is.infinite(corn_mrev))
-# dat <- filter(dat, cotton_mrev > 0 & !is.na(cotton_mrev) & !is.infinite(cotton_mrev))
-# dat <- filter(dat, hay_mrev > 0 & !is.na(hay_mrev) & !is.infinite(hay_mrev))
-# dat <- filter(dat, wheat_mrev > 0 & !is.na(wheat_mrev) & !is.infinite(wheat_mrev))
-# dat <- filter(dat, soybean_mrev > 0 & !is.na(soybean_mrev) & !is.infinite(soybean_mrev))
-# 
-# dat <- dat %>% filter(corn_mrev < quantile(dat$corn_mrev, 0.95) & corn_mrev > quantile(dat$corn_mrev, 0.05))
-# dat <- dat %>% filter(cotton_mrev < quantile(dat$cotton_mrev, 0.95) & cotton_mrev > quantile(dat$cotton_mrev, 0.05))
-# dat <- dat %>% filter(hay_mrev < quantile(dat$hay_mrev, 0.95) & hay_mrev > quantile(dat$hay_mrev, 0.05))
-# dat <- dat %>% filter(wheat_mrev < quantile(dat$wheat_mrev, 0.95) & wheat_mrev > quantile(dat$wheat_mrev, 0.05))
-# dat <- dat %>% filter(soybean_mrev < quantile(dat$soybean_mrev, 0.95) & soybean_mrev > quantile(dat$soybean_mrev, 0.05))
-
-
-dat$five <- dat$year -dat$year %% 5
-
 dat <- dat %>% 
-  group_by(ten, fips) %>% 
+  group_by(fips) %>% 
   summarise(corn_yield = mean(corn_yield),
             corn_mprice = mean(corn_rprice),
             corn_a = mean(corn_grain_a),
@@ -55,7 +36,143 @@ dat <- dat %>%
             hay_mrev = mean(hay_mrev),
             wheat_mrev = mean(wheat_mrev),
             soybean_mrev = mean(soybean_mrev),
-            tavg = mean(tavg))
+            tavg = mean(tavg),
+            dday10_30 = mean(dday10_30),
+            dday30 = mean(dday30),
+            prec = mean(prec),
+            corn_a = mean(corn_a))
+
+dat$corn_rev <- dat$corn_yield*mean(dat$corn_mprice)
+dat$cotton_rev <- dat$cotton_yield*mean(dat$cotton_mprice)
+dat$hay_rev <- dat$hay_yield*mean(dat$hay_mprice)
+dat$wheat_rev <- dat$wheat_yield*mean(dat$wheat_mprice)
+dat$soybean_rev <- dat$soybean_yield*mean(dat$soybean_mprice)
+
+dat$ftavg <- floor(dat$tavg)
+ddat <- dat %>% 
+  group_by(ftavg) %>% 
+  summarise(corn_rev = mean(corn_rev, na.rm = TRUE),
+            cotton_rev = mean(cotton_rev, na.rm = TRUE),
+            hay_rev = mean(hay_rev, na.rm = TRUE),
+            wheat_rev = mean(wheat_rev, na.rm = TRUE),
+            soybean_rev = mean(soybean_rev, na.rm = TRUE))
+
+ddpdat <- gather(ddat, key = crop_rev, value = value, -ftavg)
+ggplot(ddpdat, aes(x = ftavg, y = log(1+value), color = crop_rev)) + 
+  geom_line() +
+  facet_wrap(~crop_rev) +
+  theme(legend.position = 'none') +
+  ylab("log(Revenue/Acre)") +
+  xlab("Average Temperature") +
+  NULL
+
+# tavg
+mod <- lm(log(1+corn_mrev) ~ rcs(tavg, 3), data = dat)
+cornp <- predict(mod)
+plot(x=dat$tavg, y=predict(mod))
+
+cdat <- filter(dat, cotton_mrev >0)
+mod <- lm(log(1+cotton_mrev) ~ rcs(tavg, 3), data = cdat)
+cottp <- predict(mod)
+lines(x=cdat$tavg, y=predict(mod))
+
+mod <- lm(log(1+hay_mrev) ~ rcs(tavg, 3), data = dat)
+hdat <- predict(mod)
+lines(x=dat$tavg, y=predict(mod))
+
+mod <- lm(log(1+wheat_mrev) ~ rcs(tavg, 3), data = dat)
+wdat <- predict(mod)
+lines(x=dat$tavg, y=predict(mod))
+
+mod <- lm(log(1+soybean_mrev) ~ rcs(tavg, 3), data = dat)
+sdat <- predict(mod)
+lines(x=dat$tavg, y=predict(mod))
+
+pdat <- data.frame(x = c(dat$tavg, cdat$tavg, dat$tavg, dat$tavg, dat$tavg),
+                   y = c(cornp, cottp, hdat, wdat, sdat),
+                   crop = c(rep("Corn", length(cornp)), rep("Cotton", length(cottp)),
+                            rep("Hay", length(hdat)), rep("Wheat", length(wdat)),
+                            rep("Soybean", length(sdat))))
+
+ggplot(pdat, aes(x, y, color = crop)) + 
+  geom_line() + 
+  facet_wrap(~crop) +
+  ylab("Revenue per acre") + ggtitle("log(Revenue/Acre) ~ tavg \n Restricted Cubic Spline df=3") +
+  theme(legend.position = "none")
+ggsave("figures/rcs_tavg.pdf", width = 6, height = 4)
+
+# dday30
+mod <- lm(log(1+corn_mrev) ~ rcs(dday30, 3), data = dat)
+cornp <- predict(mod)
+plot(x=dat$dday30, y=predict(mod))
+
+cdat <- filter(dat, cotton_mrev >0)
+mod <- lm(log(1+cotton_mrev) ~ rcs(dday30, 3), data = cdat)
+cottp <- predict(mod)
+plot(x=cdat$dday30, y=predict(mod))
+
+mod <- lm(log(1+hay_mrev) ~ rcs(dday30, 3), data = dat)
+hdat <- predict(mod)
+plot(x=dat$dday30, y=predict(mod))
+
+mod <- lm(log(1+wheat_mrev) ~ rcs(dday30, 3), data = dat)
+wdat <- predict(mod)
+plot(x=dat$dday30, y=predict(mod))
+
+mod <- lm(log(1+soybean_mrev) ~ rcs(dday30, 3), data = dat)
+sdat <- predict(mod)
+plot(x=dat$dday30, y=predict(mod))
+
+pdat <- data.frame(x = c(dat$dday30, cdat$dday30, dat$dday30, dat$dday30, dat$dday30),
+                   y = c(cornp, cottp, hdat, wdat, sdat),
+                   crop = c(rep("Corn", length(cornp)), rep("Cotton", length(cottp)),
+                            rep("Hay", length(hdat)), rep("Wheat", length(wdat)),
+                            rep("Soybean", length(sdat))))
+
+ggplot(pdat, aes(x, y, color = crop)) + 
+  geom_line() + 
+  facet_wrap(~crop) +
+  ylab("Revenue per acre") + ggtitle("log(Revenue/Acre) ~ Degree Day > 30 \n Restricted Cubic Spline df=3") +
+  theme(legend.position = "none")
+
+ggsave("figures/rcs_dday30.pdf", width = 6, height = 4)
+
+# dday10_30
+mod <- lm(log(1+corn_mrev) ~ rcs(dday10_30, 3), data = dat)
+cornp <- predict(mod)
+plot(x=dat$dday10_30, y=predict(mod))
+
+cdat <- filter(dat, cotton_mrev >0)
+mod <- lm(log(1+cotton_mrev) ~ rcs(dday10_30, 3), data = cdat)
+cottp <- predict(mod)
+plot(x=cdat$dday10_30, y=predict(mod))
+
+mod <- lm(log(1+hay_mrev) ~ rcs(dday10_30, 3), data = dat)
+hdat <- predict(mod)
+plot(x=dat$dday10_30, y=predict(mod))
+
+mod <- lm(log(1+wheat_mrev) ~ rcs(dday10_30, 3), data = dat)
+wdat <- predict(mod)
+plot(x=dat$dday10_30, y=predict(mod))
+
+mod <- lm(log(1+soybean_mrev) ~ rcs(dday10_30, 3), data = dat)
+sdat <- predict(mod)
+plot(x=dat$dday10_30, y=predict(mod))
+
+pdat <- data.frame(x = c(dat$dday10_30, cdat$dday10_30, dat$dday10_30, dat$dday10_30, dat$dday10_30),
+                   y = c(cornp, cottp, hdat, wdat, sdat),
+                   crop = c(rep("Corn", length(cornp)), rep("Cotton", length(cottp)),
+                            rep("Hay", length(hdat)), rep("Wheat", length(wdat)),
+                            rep("Soybean", length(sdat))))
+
+ggplot(pdat, aes(x, y, color = crop)) + 
+  geom_line() + 
+  facet_wrap(~crop) +
+  ylab("Revenue per acre") + 
+  ggtitle("log(Revenue/Acre) ~ dday10_30 \n Restricted Cubic Spline df=3") +
+  theme(legend.position = "none")
+
+ggsave("figures/rcs_dday10_30.pdf", width = 6, height = 4)
 
 corn_dens <- density(dat$tavg, weights = dat$corn_yield*dat$corn_a/sum(dat$corn_yield*dat$corn_a))
 cotton_dens <- density(dat$tavg, weights = dat$cotton_yield*dat$cotton_a/sum(dat$cotton_yield*dat$cotton_a))
