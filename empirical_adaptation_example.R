@@ -53,16 +53,22 @@ dat <- dat %>%
             p_wheat_a = mean(p_wheat_a, na.rm = TRUE),
             p_soybean_a = mean(p_soybean_a, na.rm = TRUE))
 
-dat$corn_rev <- dat$corn_yield*mean(dat$corn_mprice, na.rm = TRUE)
-dat$cotton_rev <- dat$cotton_yield*mean(dat$cotton_mprice, na.rm = TRUE)
-dat$hay_rev <- dat$hay_yield*mean(dat$hay_mprice, na.rm = TRUE)
-dat$wheat_rev <- dat$wheat_yield*mean(dat$wheat_mprice, na.rm = TRUE)
-dat$soybean_rev <- dat$soybean_yield*mean(dat$soybean_mprice, na.rm = TRUE)
+dat$corn_rev <- dat$corn_yield*mean(mdat$corn_rprice, na.rm = TRUE)
+dat$cotton_rev <- dat$cotton_yield*mean(mdat$cotton_rprice, na.rm = TRUE)
+dat$hay_rev <- dat$hay_yield*mean(mdat$hay_rprice, na.rm = TRUE)
+dat$wheat_rev <- dat$wheat_yield*mean(mdat$wheat_rprice, na.rm = TRUE)
+dat$soybean_rev <- dat$soybean_yield*mean(mdat$soybean_rprice, na.rm = TRUE)
+
+dat$corn_a <- remove_outliers(dat$corn_a)
+dat$cotton_a <- remove_outliers(dat$cotton_a)
+dat$hay_a <- remove_outliers(dat$hay_a)
+dat$wheat_a <- remove_outliers(dat$wheat_a)
+dat$soybean_a <- remove_outliers(dat$soybean_a)
 
 # Cut into bins
-dat$ftavg <- cut(dat$tavg, 30, labels = 1:30)
-dat$fdday10_30 <- cut(dat$dday10_30, 30, labels = 1:30)
-dat$fdday30 <- cut(dat$dday30, 30, labels = 1:30)
+dat$ftavg <- cut(dat$tavg, 10, labels = 1:10)
+dat$fdday10_30 <- cut(dat$dday10_30, 10, labels = 1:10)
+dat$fdday30 <- cut(dat$dday30, 10, labels = 1:10)
 
 tavg_dat <- dat %>% 
   group_by(ftavg) %>% 
@@ -71,41 +77,21 @@ tavg_dat <- dat %>%
             hay_rev = mean(hay_rev, na.rm = TRUE),
             wheat_rev = mean(wheat_rev, na.rm = TRUE),
             soybean_rev = mean(soybean_rev, na.rm = TRUE),
-            tavg = mean(tavg),
-            p_corn_a = mean(p_corn_a),
-            p_cotton_a = mean(p_cotton_a),
-            p_hay_a = mean(p_hay_a),
-            p_wheat_a = mean(p_wheat_a),
-            p_soybean_a = mean(p_soybean_a),
-            corn_acres = sum(corn_a),
-            cotton_acres = sum(cotton_a),
-            hay_acres = sum(hay_a),
-            wheat_acres = sum(wheat_a),
-            soybean_acres = sum(soybean_a)) %>% 
+            tavg = mean(tavg, na.rm = TRUE),
+            p_corn_a = mean(p_corn_a, na.rm = TRUE),
+            p_cotton_a = mean(p_cotton_a, na.rm = TRUE),
+            p_hay_a = mean(p_hay_a, na.rm = TRUE),
+            p_wheat_a = mean(p_wheat_a, na.rm = TRUE),
+            p_soybean_a = mean(p_soybean_a, na.rm = TRUE),
+            corn_acres = sum(corn_a, na.rm = TRUE),
+            cotton_acres = sum(cotton_a, na.rm = TRUE),
+            hay_acres = sum(hay_a, na.rm = TRUE),
+            wheat_acres = sum(wheat_a, na.rm = TRUE),
+            soybean_acres = sum(soybean_a, na.rm = TRUE)) %>% 
   mutate(ftavg = NULL) %>% 
   arrange(tavg) %>% 
   ungroup()
 
-
-locpoly(tavg_dat$tavg, tavg_dat$corn_rev, bandwidth = 5)$y
-plot(locpoly(tavg_dat$tavg, tavg_dat$cotton_rev, bandwidth = 5))
-plot(locpoly(tavg_dat$tavg, tavg_dat$hay_rev, bandwidth = 5))
-plot(locpoly(tavg_dat$tavg, tavg_dat$wheat_rev, bandwidth = 5))
-plot(locpoly(tavg_dat$tavg, tavg_dat$soybean_rev, bandwidth = 5))
-
-
-plot(locpoly(tavg_dat$tavg, tavg_dat$p_corn_a, bandwidth = 5))
-# tavg_dat$corn_rev <- approx(tavg_dat$corn_rev, xout = tavg_dat$tavg)$y
-# tavg_dat$cotton_rev <- approx(tavg_dat$cotton_rev, xout = tavg_dat$tavg)$y
-# tavg_dat$hay_rev <- approx(tavg_dat$hay_rev, xout = tavg_dat$tavg)$y
-# tavg_dat$wheat_rev <- approx(tavg_dat$wheat_rev, xout = tavg_dat$tavg)$y
-# tavg_dat$soybean_rev <- approx(tavg_dat$soybean_rev, xout = tavg_dat$tavg)$y
-# 
-# tavg_dat$p_corn_a <- approx(tavg_dat$p_corn_a, xout = tavg_dat$tavg)$y
-# tavg_dat$p_cotton_a <- approx(tavg_dat$p_cotton_a, xout = tavg_dat$tavg)$y
-# tavg_dat$p_hay_a <- approx(tavg_dat$p_hay_a, xout = tavg_dat$tavg)$y
-# tavg_dat$p_wheat_a <- approx(tavg_dat$p_wheat_a, xout = tavg_dat$tavg)$y
-# tavg_dat$p_soybean_a <- approx(tavg_dat$p_soybean_a, xout = tavg_dat$tavg)$y
 
 dday10_30_dat <- dat %>% 
     group_by(fdday10_30) %>% 
@@ -114,33 +100,20 @@ dday10_30_dat <- dat %>%
             hay_rev = mean(hay_rev, na.rm = TRUE),
             wheat_rev = mean(wheat_rev, na.rm = TRUE),
             soybean_rev = mean(soybean_rev, na.rm = TRUE),
-            dday10_30 = mean(dday10_30),
-            p_corn_a = mean(p_corn_a),
-            p_cotton_a = mean(p_cotton_a),
-            p_hay_a = mean(p_hay_a),
-            p_wheat_a = mean(p_wheat_a),
-            p_soybean_a = mean(p_soybean_a),
-            corn_acres = sum(corn_a),
-            cotton_acres = sum(cotton_a),
-            hay_acres = sum(hay_a),
-            wheat_acres = sum(wheat_a),
-            soybean_acres = sum(soybean_a)) %>% 
+            dday10_30 = mean(dday10_30, na.rm = TRUE),
+            p_corn_a = mean(p_corn_a, na.rm = TRUE),
+            p_cotton_a = mean(p_cotton_a, na.rm = TRUE),
+            p_hay_a = mean(p_hay_a, na.rm = TRUE),
+            p_wheat_a = mean(p_wheat_a, na.rm = TRUE),
+            p_soybean_a = mean(p_soybean_a, na.rm = TRUE),
+            corn_acres = sum(corn_a, na.rm = TRUE),
+            cotton_acres = sum(cotton_a, na.rm = TRUE),
+            hay_acres = sum(hay_a, na.rm = TRUE),
+            wheat_acres = sum(wheat_a, na.rm = TRUE),
+            soybean_acres = sum(soybean_a, na.rm = TRUE)) %>% 
   mutate(fdday10_30 = NULL) %>% 
   arrange(dday10_30) %>% 
   ungroup()
-
-# dday10_30_dat$corn_rev <- approx(dday10_30_dat$corn_rev, x = dday10_30_dat$dday10_30, xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$cotton_rev <- approx(dday10_30_dat$cotton_rev, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$hay_rev <- approx(dday10_30_dat$hay_rev, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$wheat_rev <- approx(dday10_30_dat$wheat_rev, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$soybean_rev <- approx(dday10_30_dat$soybean_rev, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# 
-# dday10_30_dat$p_corn_a <- approx(dday10_30_dat$p_corn_a, x = dday10_30_dat$dday10_30, xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$p_cotton_a <- approx(dday10_30_dat$p_cotton_a, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$p_hay_a <- approx(dday10_30_dat$p_hay_a, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$p_wheat_a <- approx(dday10_30_dat$p_wheat_a, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-# dday10_30_dat$p_soybean_a <- approx(dday10_30_dat$p_soybean_a, x = dday10_30_dat$dday10_30,xout = dday10_30_dat$dday10_30)$y
-
 
 dday30_dat <- dat %>% 
     group_by(fdday30) %>% 
@@ -149,41 +122,29 @@ dday30_dat <- dat %>%
             hay_rev = mean(hay_rev, na.rm = TRUE),
             wheat_rev = mean(wheat_rev, na.rm = TRUE),
             soybean_rev = mean(soybean_rev, na.rm = TRUE),
-            dday30 = mean(dday30),
-            p_corn_a = mean(p_corn_a),
-            p_cotton_a = mean(p_cotton_a),
-            p_hay_a = mean(p_hay_a),
-            p_wheat_a = mean(p_wheat_a),
-            p_soybean_a = mean(p_soybean_a),
-            corn_acres = sum(corn_a),
-            cotton_acres = sum(cotton_a),
-            hay_acres = sum(hay_a),
-            wheat_acres = sum(wheat_a),
-            soybean_acres = sum(soybean_a)) %>% 
+            dday30 = mean(dday30, na.rm = TRUE),
+            p_corn_a = mean(p_corn_a, na.rm = TRUE),
+            p_cotton_a = mean(p_cotton_a, na.rm = TRUE),
+            p_hay_a = mean(p_hay_a, na.rm = TRUE),
+            p_wheat_a = mean(p_wheat_a, na.rm = TRUE),
+            p_soybean_a = mean(p_soybean_a, na.rm = TRUE),
+            corn_acres = sum(corn_a, na.rm = TRUE),
+            cotton_acres = sum(cotton_a, na.rm = TRUE),
+            hay_acres = sum(hay_a, na.rm = TRUE),
+            wheat_acres = sum(wheat_a, na.rm = TRUE),
+            soybean_acres = sum(soybean_a, na.rm = TRUE)) %>% 
   mutate(fdday30 = NULL) %>% 
   arrange(dday30) %>% 
   ungroup()
 
-# dday30_dat$corn_rev <- approx(dday30_dat$corn_rev, xout = dday30_dat$dday30)$y
-# dday30_dat$cotton_rev <- approx(dday30_dat$cotton_rev, xout = dday30_dat$dday30)$y
-# dday30_dat$hay_rev <- approx(dday30_dat$hay_rev, xout = dday30_dat$dday30)$y
-# dday30_dat$wheat_rev <- approx(dday30_dat$wheat_rev, xout = dday30_dat$dday30)$y
-# dday30_dat$soybean_rev <- approx(dday30_dat$soybean_rev, xout = dday30_dat$dday30)$y
-# 
-# dday30_dat$p_corn_a <- approx(dday30_dat$p_corn_a, xout = dday30_dat$dday30)$y
-# dday30_dat$p_cotton_a <- approx(dday30_dat$p_cotton_a, xout = dday30_dat$dday30)$y
-# dday30_dat$p_hay_a <- approx(dday30_dat$p_hay_a, xout = dday30_dat$dday30)$y
-# dday30_dat$p_wheat_a <- approx(dday30_dat$p_wheat_a, xout = dday30_dat$dday30)$y
-# dday30_dat$p_soybean_a <- approx(dday30_dat$p_soybean_a, xout = dday30_dat$dday30)$y
-
 # Tavg plot
-tavg_pdat <- select(tavg_dat, tavg, corn_rev, cotton_rev, hay_rev, wheat_rev, soybean_rev,
-                    p_corn_a, p_cotton_a, p_hay_a, p_wheat_a, p_soybean_a)
 tavg_pdat <- gather(tavg_dat, key = crop_var, value = value, -tavg)
 tavg_pdat$crop_var <- factor(tavg_pdat$crop_var, 
                              levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
-                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a'),
+                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a',
+                                        'corn_acres', 'cotton_acres', 'hay_acres', 'wheat_acres', 'soybean_acres'),
                              labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 ggplot(tavg_pdat, aes(x = tavg, y = value, color = crop_var)) + 
   theme_tufte() +
@@ -192,20 +153,21 @@ ggplot(tavg_pdat, aes(x = tavg, y = value, color = crop_var)) +
   geom_line() +
   facet_wrap(~crop_var, scales = 'free', ncol = 5) +
   theme(legend.position = 'none') +
-  ylab("Proportion of Acres              log(Revenue/Acre)") +
+  # ylab("Proportion of Acres              Revenue/Acre") +
+  ylab(NULL) +
   xlab("Average Temperature") +
   scale_x_continuous(breaks = seq(10, 30, by = 4)) +
   NULL
 ggsave("figures/bins_tavg.pdf", width = 6, height = 4)
 
 # Degree Day 10_30 plot
-dday10_30_pdat <- select(dday10_30_dat, dday10_30, corn_rev, cotton_rev, hay_rev, wheat_rev, soybean_rev,
-                    p_corn_a, p_cotton_a, p_hay_a, p_wheat_a, p_soybean_a)
 dday10_30_pdat <- gather(dday10_30_dat, key = crop_var, value = value, -dday10_30)
 dday10_30_pdat$crop_var <- factor(dday10_30_pdat$crop_var, 
-                             levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
-                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a'),
+                              levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
+                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a',
+                                        'corn_acres', 'cotton_acres', 'hay_acres', 'wheat_acres', 'soybean_acres'),
                              labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 
 ggplot(dday10_30_pdat, aes(x = dday10_30, y = value, color = crop_var)) + 
@@ -215,19 +177,24 @@ ggplot(dday10_30_pdat, aes(x = dday10_30, y = value, color = crop_var)) +
   geom_line() +
   facet_wrap(~crop_var, scales = 'free', ncol = 5) +
   theme(legend.position = 'none',
-        axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ylab("Proportion of Acres              log(Revenue/Acre)") +
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  # ylab("Proportion of Acres              Revenue/Acre") +
+  ylab(NULL) +
   xlab("Degree Days (10-30C)") +
   scale_x_continuous(breaks = c(930, 1300, 1700, 2100, 2500, 2900)) +
   
   NULL
+
 ggsave("figures/bins_dday10_30.pdf", width = 6, height = 4)
 
+# Degree Day 30 Plot
 dday30_pdat <- gather(dday30_dat, key = crop_var, value = value, -dday30)
 dday30_pdat$crop_var <- factor(dday30_pdat$crop_var, 
                              levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
-                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a'),
+                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a',
+                                        'corn_acres', 'cotton_acres', 'hay_acres', 'wheat_acres', 'soybean_acres'),
                              labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 
 ggplot(dday30_pdat, aes(x = dday30, y = value, color = crop_var)) + 
@@ -237,112 +204,444 @@ ggplot(dday30_pdat, aes(x = dday30, y = value, color = crop_var)) +
   geom_line() +
   facet_wrap(~crop_var, scales = 'free', ncol = 5) +
   theme(legend.position = 'none',
-        axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ylab("Proportion of Acres              log(Revenue/Acre)") +
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab(NULL) +
+  # ylab("Proportion of Acres              Revenue/Acre") +
   xlab("Degree Days (30C)") +
   scale_x_continuous(breaks = c(3, 30, 56, 82, 109, 135, 165)) +
   NULL
 
 ggsave("figures/bins_dday30.pdf", width = 6, height = 4)
 
-# Build tavg functions
-tavg_corn_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$corn_rev, bandwidth = 5))
-tavg_cotton_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$cotton_rev, bandwidth = 5))
-tavg_hay_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$hay_rev, bandwidth = 5))
-tavg_wheat_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$wheat_rev, bandwidth = 5))
-tavg_soybean_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$soybean_rev, bandwidth = 5))
+# Build functions
+# tavg_corn_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$corn_rev, bandwidth = 5))
+# tavg_cotton_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$cotton_rev, bandwidth = 5))
+# tavg_hay_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$hay_rev, bandwidth = 5))
+# tavg_wheat_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$wheat_rev, bandwidth = 5))
+# tavg_soybean_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$soybean_rev, bandwidth = 5))
+# 
+# dday10_30_corn_fn <- approxfun(locpoly(dday10_30_dat$dday10_30, dday10_30_dat$corn_rev, bandwidth = 5))
+# dday10_30_cotton_fn <- approxfun(locpoly(dday10_30_dat$dday10_30, dday10_30_dat$cotton_rev, bandwidth = 5))
+# dday10_30_hay_fn <- approxfun(locpoly(dday10_30_dat$dday10_30, dday10_30_dat$hay_rev, bandwidth = 5))
+# dday10_30_wheat_fn <- approxfun(locpoly(dday10_30_dat$dday10_30, dday10_30_dat$wheat_rev, bandwidth = 5))
+# dday10_30_soybean_fn <- approxfun(locpoly(dday10_30_dat$dday10_30, dday10_30_dat$soybean_rev, bandwidth = 5))
+# 
+# dday30_corn_fn <- approxfun(locpoly(dday30_dat$dday30, dday30_dat$corn_rev, bandwidth = 5))
+# dday30_cotton_fn <- approxfun(locpoly(dday30_dat$dday30, dday30_dat$cotton_rev, bandwidth = 5))
+# dday30_hay_fn <- approxfun(locpoly(dday30_dat$dday30, dday30_dat$hay_rev, bandwidth = 5))
+# dday30_wheat_fn <- approxfun(locpoly(dday30_dat$dday30, dday30_dat$wheat_rev, bandwidth = 5))
+# dday30_soybean_fn <- approxfun(locpoly(dday30_dat$dday30, dday30_dat$soybean_rev, bandwidth = 5))
 
-tavg <- tavg_dat$tavg
-tavg[1] <- tavg_dat$tavg[1]+0.1; tavg[length(tavg_dat$tavg)] <- tavg[length(tavg_dat$tavg)] - 0.1
+# Linear int
+tavg_corn_fn <- approxfun(tavg_dat$tavg, tavg_dat$corn_rev)
+tavg_cotton_fn <- approxfun(tavg_dat$tavg, tavg_dat$cotton_rev)
+tavg_hay_fn <- approxfun(tavg_dat$tavg, tavg_dat$hay_rev)
+tavg_wheat_fn <- approxfun(tavg_dat$tavg, tavg_dat$wheat_rev)
+tavg_soybean_fn <- approxfun(tavg_dat$tavg, tavg_dat$soybean_rev)
 
-temp1 <- grad(tavg_corn_fn, tavg)*1*tavg_dat$corn_acres + 
-          grad(tavg_cotton_fn, tavg)*1*tavg_dat$cotton_acres +
-          grad(tavg_hay_fn, tavg)*1*tavg_dat$hay_acres +
-          grad(tavg_wheat_fn, tavg)*1*tavg_dat$wheat_acres +
-          grad(tavg_soybean_fn, tavg)*1*tavg_dat$soybean_acres
+dday10_30_corn_fn <- approxfun(dday10_30_dat$dday10_30, dday10_30_dat$corn_rev)
+dday10_30_cotton_fn <- approxfun(dday10_30_dat$dday10_30, dday10_30_dat$cotton_rev)
+dday10_30_hay_fn <- approxfun(dday10_30_dat$dday10_30, dday10_30_dat$hay_rev)
+dday10_30_wheat_fn <- approxfun(dday10_30_dat$dday10_30, dday10_30_dat$wheat_rev)
+dday10_30_soybean_fn <- approxfun(dday10_30_dat$dday10_30, dday10_30_dat$soybean_rev)
 
-temp2 <- grad(tavg_corn_fn, tavg)*2*tavg_dat$corn_acres + 
-          grad(tavg_cotton_fn, tavg)*2*tavg_dat$cotton_acres +
-          grad(tavg_hay_fn, tavg)*2*tavg_dat$hay_acres +
-          grad(tavg_wheat_fn, tavg)*2*tavg_dat$wheat_acres +
-          grad(tavg_soybean_fn, tavg)*2*tavg_dat$soybean_acres
+dday30_corn_fn <- approxfun(dday30_dat$dday30, dday30_dat$corn_rev)
+dday30_cotton_fn <- approxfun(dday30_dat$dday30, dday30_dat$cotton_rev)
+dday30_hay_fn <- approxfun(dday30_dat$dday30, dday30_dat$hay_rev)
+dday30_wheat_fn <- approxfun(dday30_dat$dday30, dday30_dat$wheat_rev)
+dday30_soybean_fn <- approxfun(dday30_dat$dday30, dday30_dat$soybean_rev)
 
-(sum(temp2) - sum(temp1))/sum(temp1)*100
-
-corn1 <- sum(grad(tavg_corn_fn, tavg)*1*tavg_dat$corn_acres)
-corn2 <- sum(grad(tavg_corn_fn, tavg)*2*tavg_dat$corn_acres)
-corn3 <- sum(grad(tavg_corn_fn, tavg)*3*tavg_dat$corn_acres)
-corn4 <- sum(grad(tavg_corn_fn, tavg)*4*tavg_dat$corn_acres)
-corn5 <- sum(grad(tavg_corn_fn, tavg)*5*tavg_dat$corn_acres)
-
-100*(corn2 - corn1)/corn1
-
-#------------------------
-
-corn_tavg_slopes <- slope(x1=tavg_dat$tavg, y1=tavg_dat$corn_rev, 
-                     x2=lead(tavg_dat$tavg), y2=lead(tavg_dat$corn_rev))
-
-corn_dday10_30_slopes <- slope(x1=dday10_30_dat$dday10_30, y1=dday10_30_dat$corn_rev, 
-                     x2=lead(dday10_30_dat$dday10_30), y2=lead(dday10_30_dat$corn_rev))
-
-corn_dday30_slopes <- slope(x1=dday30_dat$dday30, y1=dday30_dat$corn_rev, 
-                     x2=lead(dday30_dat$dday30), y2=lead(dday30_dat$corn_rev))
-
-corn_tavg_slopes <- rollmean(corn_tavg_slopes, 2, align = "left", na.rm = TRUE)
-corn_dday10_30_slopes <- rollmean(corn_tavg_slopes, 2, align = "left")
-corn_dday30_slopes <- rollmean(corn_tavg_slopes, 2, align = "left")
+int_pdat <- data.frame(temp = rep(c("Average Temp. (C)", "Degree Day (10-30C)", "Degree Day (30C)"), each = 50),
+                       crop = rep(c("Corn", "Cotton", "Hay", "Wheat", "Soybean"), each = 10),
+                       x = c(rep(tavg_dat$tavg, 5), rep(dday10_30_dat$dday10_30, 5), rep(dday30_dat$dday30, 5)),
+                       y = c(tavg_corn_fn(tavg_dat$tavg), tavg_cotton_fn(tavg_dat$tavg), tavg_hay_fn(tavg_dat$tavg), tavg_wheat_fn(tavg_dat$tavg), tavg_soybean_fn(tavg_dat$tavg),
+                             dday10_30_corn_fn(dday10_30_dat$dday10_30), dday10_30_cotton_fn(dday10_30_dat$dday10_30), dday10_30_hay_fn(dday10_30_dat$dday10_30), dday10_30_wheat_fn(dday10_30_dat$dday10_30), dday10_30_soybean_fn(dday10_30_dat$dday10_30),
+                             dday30_corn_fn(dday30_dat$dday30), dday30_cotton_fn(dday30_dat$dday30), dday30_hay_fn(dday30_dat$dday30), dday30_wheat_fn(dday30_dat$dday30), dday30_soybean_fn(dday30_dat$dday30)))
 
 
-indat <- c()
-
-corn1 <- sum(corn_tavg_slopes*1*tavg_dat$corn_acres[1:29], na.rm = TRUE)
-corn2 <- sum(corn_tavg_slopes*2*tavg_dat$corn_acres[1:29], na.rm = TRUE)
-corn3 <- sum(corn_tavg_slopes*3*tavg_dat$corn_acres[1:29], na.rm = TRUE)
-corn4 <- sum(corn_tavg_slopes*4*tavg_dat$corn_acres[1:29], na.rm = TRUE)
-corn5 <- sum(corn_tavg_slopes*5*tavg_dat$corn_acres[1:29], na.rm = TRUE)
-
-(corn3 - corn1)/corn1
-
-for (i in 1:5){
-  
-}
-
-p1 <- ggplot(dplot, aes(x = x, y = y/1000000, color = crop)) + 
+ggplot(int_pdat, aes(x=x, y=y, color = crop)) + 
   theme_tufte() +    
   geom_line() + 
-  #xlab('Average Temperature (C)') +
-  xlab(NULL) + 
-  ylab("Value of Activity \n ($1 million)") + 
-  annotate("text", x = 12, y = 14, label = "Wheat", color = "blue", size = 4) +
-  annotate("text", x = 16, y = 29, label = "Corn", color = "red", size = 4) +
-  annotate("text", x = 21, y = 29, label = "Cotton", color = "green", size = 4) +
+  ylab("Revenue/Acre") +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
-  theme(legend.position = 'top') + theme(
-                         #legend.position = c(0.05, 0.9),
-                         #legend.title = element_blank(),
-                         #legend.background = element_rect(
-                         #        size=0.5, linetype="solid", 
-                         #\       colour = "grey"),
-                         legend.position = "none",
-                         axis.text.x = element_blank(),
-                         #axis.text.y = element_blank(),
-                         axis.ticks.x = element_blank(),
-                         #axis.ticks.y = element_blank(),
-                         #panel.border = element_rect(fill = NA),
-                         plot.margin = unit(c(0, 0, 3, 0), "cm")) 
-p1
-dat$acres = rowSums(dat[, c("wheat_a", "corn_a", "cotton_a")], na.rm = TRUE)
-p2 <- ggplot(dat, aes(tavg)) + 
-  ylim(0, 0.18) +
-  theme_tufte() +
-  geom_density(aes(weight = acres/sum(acres)), color = "grey") +
-  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
-  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
-  ylab("Density") +
-  scale_x_continuous(breaks = 0:30) +
-  xlab("Average Temperature(C)")
-p2
-ggdraw() + draw_plot(p1) + draw_plot(p2, 0, height = .30, width = 1.01)
-ggsave("figures/empirical_graph.pdf", width = 6, height = 4)
+  facet_wrap(temp~crop) +
+  theme(legend.position = 'none') +
+  facet_wrap(temp~crop, scales = 'free', ncol = 5)
+ggsave("figures/interp_rev_plot.pdf", height = 6, width = 8)
 
+#---------------------------------------------
+# TOTAL EFFECT
+# Average Temperatures
+tavg <- tavg_dat$tavg
+tavg[1] <- tavg_dat$tavg[1] + 0.1
+tavg[length(tavg_dat$tavg)] <- tavg[length(tavg_dat$tavg)] - 0.1
+
+tavg_base <- sum(tavg_dat$corn_rev*tavg_dat$corn_acres) +
+        sum(tavg_dat$cotton_rev*tavg_dat$cotton_acres) +
+        sum(tavg_dat$hay_rev*tavg_dat$hay_acres) +
+        sum(tavg_dat$wheat_rev*tavg_dat$wheat_acres) +
+        sum(tavg_dat$soybean_rev*tavg_dat$soybean_acres)
+  
+tavg_temp1 <- tavg_base + sum((tavg_corn_fn(tavg_dat$tavg + 1)*tavg_dat$corn_acres - tavg_corn_fn(tavg_dat$tavg)*tavg_dat$corn_acres), na.rm = TRUE) +
+  sum((tavg_cotton_fn(tavg_dat$tavg + 1)*tavg_dat$cotton_acres - tavg_cotton_fn(tavg_dat$tavg)*tavg_dat$cotton_acres), na.rm = TRUE) +
+  sum((tavg_hay_fn(tavg_dat$tavg + 1)*tavg_dat$hay_acres - tavg_hay_fn(tavg_dat$tavg)*tavg_dat$hay_acres), na.rm = TRUE) +
+  sum((tavg_wheat_fn(tavg_dat$tavg + 1)*tavg_dat$wheat_acres - tavg_wheat_fn(tavg_dat$tavg)*tavg_dat$wheat_acres), na.rm = TRUE) +
+  sum((tavg_soybean_fn(tavg_dat$tavg + 1)*tavg_dat$soybean_acres - tavg_soybean_fn(tavg_dat$tavg)*tavg_dat$soybean_acres), na.rm = TRUE)
+  
+tavg_temp2 <- tavg_base + sum((tavg_corn_fn(tavg_dat$tavg + 2)*tavg_dat$corn_acres - tavg_corn_fn(tavg_dat$tavg)*tavg_dat$corn_acres), na.rm = TRUE) +
+  sum((tavg_cotton_fn(tavg_dat$tavg + 2)*tavg_dat$cotton_acres - tavg_cotton_fn(tavg_dat$tavg)*tavg_dat$cotton_acres), na.rm = TRUE) +
+  sum((tavg_hay_fn(tavg_dat$tavg + 2)*tavg_dat$hay_acres - tavg_hay_fn(tavg_dat$tavg)*tavg_dat$hay_acres), na.rm = TRUE) +
+  sum((tavg_wheat_fn(tavg_dat$tavg + 2)*tavg_dat$wheat_acres - tavg_wheat_fn(tavg_dat$tavg)*tavg_dat$wheat_acres), na.rm = TRUE) +
+  sum((tavg_soybean_fn(tavg_dat$tavg + 2)*tavg_dat$soybean_acres - tavg_soybean_fn(tavg_dat$tavg)*tavg_dat$soybean_acres), na.rm = TRUE)
+  
+tavg_temp3 <- tavg_base + sum((tavg_corn_fn(tavg_dat$tavg + 3)*tavg_dat$corn_acres - tavg_corn_fn(tavg_dat$tavg)*tavg_dat$corn_acres), na.rm = TRUE) +
+  sum((tavg_cotton_fn(tavg_dat$tavg + 3)*tavg_dat$cotton_acres - tavg_cotton_fn(tavg_dat$tavg)*tavg_dat$cotton_acres), na.rm = TRUE) +
+  sum((tavg_hay_fn(tavg_dat$tavg + 3)*tavg_dat$hay_acres - tavg_hay_fn(tavg_dat$tavg)*tavg_dat$hay_acres), na.rm = TRUE) +
+  sum((tavg_wheat_fn(tavg_dat$tavg + 3)*tavg_dat$wheat_acres - tavg_wheat_fn(tavg_dat$tavg)*tavg_dat$wheat_acres), na.rm = TRUE) +
+  sum((tavg_soybean_fn(tavg_dat$tavg + 3)*tavg_dat$soybean_acres - tavg_soybean_fn(tavg_dat$tavg)*tavg_dat$soybean_acres), na.rm = TRUE)
+  
+tavg_temp4 <- tavg_base + sum((tavg_corn_fn(tavg_dat$tavg + 4)*tavg_dat$corn_acres - tavg_corn_fn(tavg_dat$tavg)*tavg_dat$corn_acres), na.rm = TRUE) +
+  sum((tavg_cotton_fn(tavg_dat$tavg + 4)*tavg_dat$cotton_acres - tavg_cotton_fn(tavg_dat$tavg)*tavg_dat$cotton_acres), na.rm = TRUE) +
+  sum((tavg_hay_fn(tavg_dat$tavg + 4)*tavg_dat$hay_acres - tavg_hay_fn(tavg_dat$tavg)*tavg_dat$hay_acres), na.rm = TRUE) +
+  sum((tavg_wheat_fn(tavg_dat$tavg + 4)*tavg_dat$wheat_acres - tavg_wheat_fn(tavg_dat$tavg)*tavg_dat$wheat_acres), na.rm = TRUE) +
+  sum((tavg_soybean_fn(tavg_dat$tavg + 4)*tavg_dat$soybean_acres - tavg_soybean_fn(tavg_dat$tavg)*tavg_dat$soybean_acres), na.rm = TRUE)
+  
+tavg_temp5 <- tavg_base + sum((tavg_corn_fn(tavg_dat$tavg + 5)*tavg_dat$corn_acres - tavg_corn_fn(tavg_dat$tavg)*tavg_dat$corn_acres), na.rm = TRUE) +
+  sum((tavg_cotton_fn(tavg_dat$tavg + 5)*tavg_dat$cotton_acres - tavg_cotton_fn(tavg_dat$tavg)*tavg_dat$cotton_acres), na.rm = TRUE) +
+  sum((tavg_hay_fn(tavg_dat$tavg + 5)*tavg_dat$hay_acres - tavg_hay_fn(tavg_dat$tavg)*tavg_dat$hay_acres), na.rm = TRUE) +
+  sum((tavg_wheat_fn(tavg_dat$tavg + 5)*tavg_dat$wheat_acres - tavg_wheat_fn(tavg_dat$tavg)*tavg_dat$wheat_acres), na.rm = TRUE) +
+  sum((tavg_soybean_fn(tavg_dat$tavg + 5)*tavg_dat$soybean_acres - tavg_soybean_fn(tavg_dat$tavg)*tavg_dat$soybean_acres), na.rm = TRUE)
+  
+adapt1_tavg <- data.frame(temp = "Average Temperature (C)",
+                          model = "Total Effect",
+                     rev = c(tavg_base, tavg_temp1, tavg_temp2, tavg_temp3, tavg_temp4, tavg_temp5))
+adapt1_tavg$change = (adapt1_tavg$rev - first(adapt1_tavg$rev))/first(adapt1_tavg$rev)*100
+adapt1_tavg
+plot(x=0:5, adapt1_tavg$change)
+lines(x=0:5, adapt1_tavg$change)
+
+
+# Degree Days 10-30
+dday10_30 <- dday10_30_dat$dday10_30
+dday10_30[1] <- dday10_30_dat$dday10_30[1] + 0.1
+dday10_30[length(dday10_30_dat$dday10_30)] <- dday10_30[length(dday10_30_dat$dday10_30)] - 0.1
+
+dday10_30_base <- sum(dday10_30_dat$corn_rev*dday10_30_dat$corn_acres) +
+        sum(dday10_30_dat$cotton_rev*dday10_30_dat$cotton_acres) +
+        sum(dday10_30_dat$hay_rev*dday10_30_dat$hay_acres) +
+        sum(dday10_30_dat$wheat_rev*dday10_30_dat$wheat_acres) +
+        sum(dday10_30_dat$soybean_rev*dday10_30_dat$soybean_acres)
+  
+dday10_30_temp1 <- dday10_30_base + sum((dday10_30_corn_fn(dday10_30_dat$dday10_30 + 140)*dday10_30_dat$corn_acres - dday10_30_corn_fn(dday10_30_dat$dday10_30)*dday10_30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday10_30_cotton_fn(dday10_30_dat$dday10_30 + 140)*dday10_30_dat$cotton_acres - dday10_30_cotton_fn(dday10_30_dat$dday10_30)*dday10_30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday10_30_hay_fn(dday10_30_dat$dday10_30 + 140)*dday10_30_dat$hay_acres - dday10_30_hay_fn(dday10_30_dat$dday10_30)*dday10_30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday10_30_wheat_fn(dday10_30_dat$dday10_30 + 140)*dday10_30_dat$wheat_acres - dday10_30_wheat_fn(dday10_30_dat$dday10_30)*dday10_30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday10_30_soybean_fn(dday10_30_dat$dday10_30 + 140)*dday10_30_dat$soybean_acres - dday10_30_soybean_fn(dday10_30_dat$dday10_30)*dday10_30_dat$soybean_acres), na.rm = TRUE)
+  
+dday10_30_temp2 <- dday10_30_base + sum((dday10_30_corn_fn(dday10_30_dat$dday10_30 + 280)*dday10_30_dat$corn_acres - dday10_30_corn_fn(dday10_30_dat$dday10_30)*dday10_30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday10_30_cotton_fn(dday10_30_dat$dday10_30 + 280)*dday10_30_dat$cotton_acres - dday10_30_cotton_fn(dday10_30_dat$dday10_30)*dday10_30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday10_30_hay_fn(dday10_30_dat$dday10_30 + 280)*dday10_30_dat$hay_acres - dday10_30_hay_fn(dday10_30_dat$dday10_30)*dday10_30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday10_30_wheat_fn(dday10_30_dat$dday10_30 + 280)*dday10_30_dat$wheat_acres - dday10_30_wheat_fn(dday10_30_dat$dday10_30)*dday10_30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday10_30_soybean_fn(dday10_30_dat$dday10_30 + 280)*dday10_30_dat$soybean_acres - dday10_30_soybean_fn(dday10_30_dat$dday10_30)*dday10_30_dat$soybean_acres), na.rm = TRUE)
+  
+dday10_30_temp3 <- dday10_30_base + sum((dday10_30_corn_fn(dday10_30_dat$dday10_30 + 420)*dday10_30_dat$corn_acres - dday10_30_corn_fn(dday10_30_dat$dday10_30)*dday10_30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday10_30_cotton_fn(dday10_30_dat$dday10_30 + 420)*dday10_30_dat$cotton_acres - dday10_30_cotton_fn(dday10_30_dat$dday10_30)*dday10_30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday10_30_hay_fn(dday10_30_dat$dday10_30 + 420)*dday10_30_dat$hay_acres - dday10_30_hay_fn(dday10_30_dat$dday10_30)*dday10_30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday10_30_wheat_fn(dday10_30_dat$dday10_30 + 420)*dday10_30_dat$wheat_acres - dday10_30_wheat_fn(dday10_30_dat$dday10_30)*dday10_30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday10_30_soybean_fn(dday10_30_dat$dday10_30 + 420)*dday10_30_dat$soybean_acres - dday10_30_soybean_fn(dday10_30_dat$dday10_30)*dday10_30_dat$soybean_acres), na.rm = TRUE)
+  
+dday10_30_temp4 <- dday10_30_base + sum((dday10_30_corn_fn(dday10_30_dat$dday10_30 + 560)*dday10_30_dat$corn_acres - dday10_30_corn_fn(dday10_30_dat$dday10_30)*dday10_30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday10_30_cotton_fn(dday10_30_dat$dday10_30 + 560)*dday10_30_dat$cotton_acres - dday10_30_cotton_fn(dday10_30_dat$dday10_30)*dday10_30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday10_30_hay_fn(dday10_30_dat$dday10_30 + 560)*dday10_30_dat$hay_acres - dday10_30_hay_fn(dday10_30_dat$dday10_30)*dday10_30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday10_30_wheat_fn(dday10_30_dat$dday10_30 + 560)*dday10_30_dat$wheat_acres - dday10_30_wheat_fn(dday10_30_dat$dday10_30)*dday10_30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday10_30_soybean_fn(dday10_30_dat$dday10_30 + 560)*dday10_30_dat$soybean_acres - dday10_30_soybean_fn(dday10_30_dat$dday10_30)*dday10_30_dat$soybean_acres), na.rm = TRUE)
+  
+dday10_30_temp5 <- dday10_30_base + sum((dday10_30_corn_fn(dday10_30_dat$dday10_30 + 700)*dday10_30_dat$corn_acres - dday10_30_corn_fn(dday10_30_dat$dday10_30)*dday10_30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday10_30_cotton_fn(dday10_30_dat$dday10_30 + 700)*dday10_30_dat$cotton_acres - dday10_30_cotton_fn(dday10_30_dat$dday10_30)*dday10_30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday10_30_hay_fn(dday10_30_dat$dday10_30 + 700)*dday10_30_dat$hay_acres - dday10_30_hay_fn(dday10_30_dat$dday10_30)*dday10_30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday10_30_wheat_fn(dday10_30_dat$dday10_30 + 700)*dday10_30_dat$wheat_acres - dday10_30_wheat_fn(dday10_30_dat$dday10_30)*dday10_30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday10_30_soybean_fn(dday10_30_dat$dday10_30 + 700)*dday10_30_dat$soybean_acres - dday10_30_soybean_fn(dday10_30_dat$dday10_30)*dday10_30_dat$soybean_acres), na.rm = TRUE)
+  
+adapt1_dday10_30 <- data.frame(temp = "Degree Day (10-30C)",
+                          model = "Total Effect",
+                     rev = c(dday10_30_base, dday10_30_temp1, dday10_30_temp2, dday10_30_temp3, dday10_30_temp4, dday10_30_temp5))
+adapt1_dday10_30$change = (adapt1_dday10_30$rev - first(adapt1_dday10_30$rev))/first(adapt1_dday10_30$rev)*100
+adapt1_dday10_30
+plot(x=0:5, adapt1_dday10_30$change)
+lines(x=0:5, adapt1_dday10_30$change)
+
+
+
+
+# Degree Days 30
+dday30 <- dday30_dat$dday30
+dday30[1] <- dday30_dat$dday30[1] + 0.1
+dday30[length(dday30_dat$dday30)] <- dday30[length(dday30_dat$dday30)] - 0.1
+
+dday30_base <- sum(dday30_dat$corn_rev*dday30_dat$corn_acres) +
+        sum(dday30_dat$cotton_rev*dday30_dat$cotton_acres) +
+        sum(dday30_dat$hay_rev*dday30_dat$hay_acres) +
+        sum(dday30_dat$wheat_rev*dday30_dat$wheat_acres) +
+        sum(dday30_dat$soybean_rev*dday30_dat$soybean_acres)
+  
+dday30_temp1 <- dday30_base + sum((dday30_corn_fn(dday30_dat$dday30 + 15)*dday30_dat$corn_acres - dday30_corn_fn(dday30_dat$dday30)*dday30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday30_cotton_fn(dday30_dat$dday30 + 15)*dday30_dat$cotton_acres - dday30_cotton_fn(dday30_dat$dday30)*dday30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday30_hay_fn(dday30_dat$dday30 + 15)*dday30_dat$hay_acres - dday30_hay_fn(dday30_dat$dday30)*dday30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday30_wheat_fn(dday30_dat$dday30 + 15)*dday30_dat$wheat_acres - dday30_wheat_fn(dday30_dat$dday30)*dday30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday30_soybean_fn(dday30_dat$dday30 + 15)*dday30_dat$soybean_acres - dday30_soybean_fn(dday30_dat$dday30)*dday30_dat$soybean_acres), na.rm = TRUE)
+  
+dday30_temp2 <- dday30_base + sum((dday30_corn_fn(dday30_dat$dday30 + 30)*dday30_dat$corn_acres - dday30_corn_fn(dday30_dat$dday30)*dday30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday30_cotton_fn(dday30_dat$dday30 + 30)*dday30_dat$cotton_acres - dday30_cotton_fn(dday30_dat$dday30)*dday30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday30_hay_fn(dday30_dat$dday30 + 30)*dday30_dat$hay_acres - dday30_hay_fn(dday30_dat$dday30)*dday30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday30_wheat_fn(dday30_dat$dday30 + 30)*dday30_dat$wheat_acres - dday30_wheat_fn(dday30_dat$dday30)*dday30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday30_soybean_fn(dday30_dat$dday30 + 30)*dday30_dat$soybean_acres - dday30_soybean_fn(dday30_dat$dday30)*dday30_dat$soybean_acres), na.rm = TRUE)
+  
+dday30_temp3 <- dday30_base + sum((dday30_corn_fn(dday30_dat$dday30 + 45)*dday30_dat$corn_acres - dday30_corn_fn(dday30_dat$dday30)*dday30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday30_cotton_fn(dday30_dat$dday30 + 45)*dday30_dat$cotton_acres - dday30_cotton_fn(dday30_dat$dday30)*dday30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday30_hay_fn(dday30_dat$dday30 + 45)*dday30_dat$hay_acres - dday30_hay_fn(dday30_dat$dday30)*dday30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday30_wheat_fn(dday30_dat$dday30 + 45)*dday30_dat$wheat_acres - dday30_wheat_fn(dday30_dat$dday30)*dday30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday30_soybean_fn(dday30_dat$dday30 + 45)*dday30_dat$soybean_acres - dday30_soybean_fn(dday30_dat$dday30)*dday30_dat$soybean_acres), na.rm = TRUE)
+  
+dday30_temp4 <- dday30_base + sum((dday30_corn_fn(dday30_dat$dday30 + 60)*dday30_dat$corn_acres - dday30_corn_fn(dday30_dat$dday30)*dday30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday30_cotton_fn(dday30_dat$dday30 + 60)*dday30_dat$cotton_acres - dday30_cotton_fn(dday30_dat$dday30)*dday30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday30_hay_fn(dday30_dat$dday30 + 60)*dday30_dat$hay_acres - dday30_hay_fn(dday30_dat$dday30)*dday30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday30_wheat_fn(dday30_dat$dday30 + 60)*dday30_dat$wheat_acres - dday30_wheat_fn(dday30_dat$dday30)*dday30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday30_soybean_fn(dday30_dat$dday30 + 60)*dday30_dat$soybean_acres - dday30_soybean_fn(dday30_dat$dday30)*dday30_dat$soybean_acres), na.rm = TRUE)
+  
+dday30_temp5 <- dday30_base + sum((dday30_corn_fn(dday30_dat$dday30 + 75)*dday30_dat$corn_acres - dday30_corn_fn(dday30_dat$dday30)*dday30_dat$corn_acres), na.rm = TRUE) +
+  sum((dday30_cotton_fn(dday30_dat$dday30 + 75)*dday30_dat$cotton_acres - dday30_cotton_fn(dday30_dat$dday30)*dday30_dat$cotton_acres), na.rm = TRUE) +
+  sum((dday30_hay_fn(dday30_dat$dday30 + 75)*dday30_dat$hay_acres - dday30_hay_fn(dday30_dat$dday30)*dday30_dat$hay_acres), na.rm = TRUE) +
+  sum((dday30_wheat_fn(dday30_dat$dday30 + 75)*dday30_dat$wheat_acres - dday30_wheat_fn(dday30_dat$dday30)*dday30_dat$wheat_acres), na.rm = TRUE) +
+  sum((dday30_soybean_fn(dday30_dat$dday30 + 75)*dday30_dat$soybean_acres - dday30_soybean_fn(dday30_dat$dday30)*dday30_dat$soybean_acres), na.rm = TRUE)
+  
+adapt1_dday30 <- data.frame(temp = "Degree Day (30C)",
+                          model = "Total Effect",
+                     rev = c(dday30_base, dday30_temp1, dday30_temp2, dday30_temp3, dday30_temp4, dday30_temp5))
+adapt1_dday30$change = (adapt1_dday30$rev - first(adapt1_dday30$rev))/first(adapt1_dday30$rev)*100
+adapt1_dday30
+plot(x=0:5, adapt1_dday30$change)
+lines(x=0:5, adapt1_dday30$change)
+
+#-------------------------------------
+# Adaptation w/o Crop-Switching
+
+# Average Temperatures
+tavg <- tavg_dat$tavg
+tavg[1] <- tavg_dat$tavg[1] + 0.1
+tavg[length(tavg_dat$tavg)] <- tavg[length(tavg_dat$tavg)] - 0.1
+
+tavg_base <- sum(tavg_dat$corn_rev*tavg_dat$corn_acres) +
+        sum(tavg_dat$cotton_rev*tavg_dat$cotton_acres) +
+        sum(tavg_dat$hay_rev*tavg_dat$hay_acres) +
+        sum(tavg_dat$wheat_rev*tavg_dat$wheat_acres) +
+        sum(tavg_dat$soybean_rev*tavg_dat$soybean_acres)
+  
+tavg_temp1 <- tavg_base + (sum(grad(tavg_corn_fn, tavg)*tavg_dat$corn_acres) + 
+          sum(grad(tavg_cotton_fn, tavg)*1*tavg_dat$cotton_acres) +
+          sum(grad(tavg_hay_fn, tavg)*1*tavg_dat$hay_acres) +
+          sum(grad(tavg_wheat_fn, tavg)*1*tavg_dat$wheat_acres) +
+          sum(grad(tavg_soybean_fn, tavg)*1*tavg_dat$soybean_acres))
+
+tavg_temp2 <- tavg_base + (sum((2*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
+          sum((2*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+          sum((2*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+          sum((2*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+          sum((2*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+
+tavg_temp3 <- tavg_base + (sum((3*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
+          sum((3*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+          sum((3*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+          sum((3*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+          sum((3*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+
+tavg_temp4 <- tavg_base + (sum((4*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
+          sum((4*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+          sum((4*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+          sum((4*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+          sum((4*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+
+tavg_temp5 <- tavg_base + (sum((5*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
+          sum((5*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+          sum((5*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+          sum((5*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+          sum((5*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+
+adapt2_tavg <- data.frame(temp = "Average Temperature (C)",
+                          model = "Adaptation w/o Crop-switching",
+                     rev = c(tavg_base, tavg_temp1, tavg_temp2, tavg_temp3, tavg_temp4, tavg_temp5))
+adapt2_tavg$change = (adapt2_tavg$rev - first(adapt2_tavg$rev))/first(adapt2_tavg$rev)*100
+adapt2_tavg
+plot(x=0:5, adapt2_tavg$change)
+lines(x=0:5, adapt2_tavg$change)
+
+
+# Degree Days 10-30
+dday10_30 <- dday10_30_dat$dday10_30
+dday10_30[1] <- dday10_30_dat$dday10_30[1] + 6
+dday10_30[length(dday10_30_dat$dday10_30)] <- dday10_30[length(dday10_30_dat$dday10_30)] - 70
+
+dday10_30_base <- sum(dday10_30_dat$corn_rev*dday10_30_dat$corn_acres) +
+        sum(dday10_30_dat$cotton_rev*dday10_30_dat$cotton_acres) +
+        sum(dday10_30_dat$hay_rev*dday10_30_dat$hay_acres) +
+        sum(dday10_30_dat$wheat_rev*dday10_30_dat$wheat_acres) +
+        sum(dday10_30_dat$soybean_rev*dday10_30_dat$soybean_acres)
+  
+dday10_30_temp1 <- dday10_30_base + (sum(140*grad(dday10_30_corn_fn, dday10_30)*dday10_30_dat$corn_acres) + 
+          sum(140*grad(dday10_30_cotton_fn, dday10_30)*dday10_30_dat$cotton_acres) +
+          sum(140*grad(dday10_30_hay_fn, dday10_30)*dday10_30_dat$hay_acres) +
+          sum(140*grad(dday10_30_wheat_fn, dday10_30)*dday10_30_dat$wheat_acres) +
+          sum(140*grad(dday10_30_soybean_fn, dday10_30)*dday10_30_dat$soybean_acres))
+
+dday10_30_temp2 <- dday10_30_base + (sum((280*grad(dday10_30_corn_fn, dday10_30))*dday10_30_dat$corn_acres) + 
+          sum((280*grad(dday10_30_cotton_fn, dday10_30))*dday10_30_dat$cotton_acres) +
+          sum((280*grad(dday10_30_hay_fn, dday10_30))*dday10_30_dat$hay_acres) +
+          sum((280*grad(dday10_30_wheat_fn, dday10_30))*dday10_30_dat$wheat_acres) +
+          sum((280*grad(dday10_30_soybean_fn, dday10_30))*dday10_30_dat$soybean_acres))
+
+dday10_30_temp3 <- dday10_30_base + (sum((420*grad(dday10_30_corn_fn, dday10_30))*dday10_30_dat$corn_acres) + 
+          sum((420*grad(dday10_30_cotton_fn, dday10_30))*dday10_30_dat$cotton_acres) +
+          sum((420*grad(dday10_30_hay_fn, dday10_30))*dday10_30_dat$hay_acres) +
+          sum((420*grad(dday10_30_wheat_fn, dday10_30))*dday10_30_dat$wheat_acres) +
+          sum((420*grad(dday10_30_soybean_fn, dday10_30))*dday10_30_dat$soybean_acres))
+
+dday10_30_temp4 <- dday10_30_base + (sum((560*grad(dday10_30_corn_fn, dday10_30))*dday10_30_dat$corn_acres) + 
+          sum((560*grad(dday10_30_cotton_fn, dday10_30))*dday10_30_dat$cotton_acres) +
+          sum((560*grad(dday10_30_hay_fn, dday10_30))*dday10_30_dat$hay_acres) +
+          sum((560*grad(dday10_30_wheat_fn, dday10_30))*dday10_30_dat$wheat_acres) +
+          sum((560*grad(dday10_30_soybean_fn, dday10_30))*dday10_30_dat$soybean_acres))
+
+dday10_30_temp5 <- dday10_30_base + (sum((700*grad(dday10_30_corn_fn, dday10_30))*dday10_30_dat$corn_acres) + 
+          sum((700*grad(dday10_30_cotton_fn, dday10_30))*dday10_30_dat$cotton_acres) +
+          sum((700*grad(dday10_30_hay_fn, dday10_30))*dday10_30_dat$hay_acres) +
+          sum((700*grad(dday10_30_wheat_fn, dday10_30))*dday10_30_dat$wheat_acres) +
+          sum((700*grad(dday10_30_soybean_fn, dday10_30))*dday10_30_dat$soybean_acres))
+
+adapt2_dday10_30 <- data.frame(temp = "Degree Day (10-30C)",
+                          model = "Adaptation w/o Crop-switching",
+                     rev = c(dday10_30_base, dday10_30_temp1, dday10_30_temp2, dday10_30_temp3, dday10_30_temp4, dday10_30_temp5))
+adapt2_dday10_30$change = 100*((adapt2_dday10_30$rev - first(adapt2_dday10_30$rev))/first(adapt2_dday10_30$rev))
+adapt2_dday10_30
+plot(x=0:5, adapt2_dday10_30$change)
+lines(x=0:5, adapt2_dday10_30$change)
+
+
+
+
+# Degree Days 30
+dday30 <- dday30_dat$dday30
+dday30[1] <- dday30_dat$dday30[1] + 0.1
+dday30[length(dday30_dat$dday30)] <- dday30[length(dday30_dat$dday30)] - 0.1
+
+dday30_base <- sum(dday30_dat$corn_rev*dday30_dat$corn_acres) +
+        sum(dday30_dat$cotton_rev*dday30_dat$cotton_acres) +
+        sum(dday30_dat$hay_rev*dday30_dat$hay_acres) +
+        sum(dday30_dat$wheat_rev*dday30_dat$wheat_acres) +
+        sum(dday30_dat$soybean_rev*dday30_dat$soybean_acres)
+  
+dday30_temp1 <- dday30_base + (sum(15*grad(dday30_corn_fn, dday30)*dday30_dat$corn_acres) + 
+          sum(15*grad(dday30_cotton_fn, dday30)*dday30_dat$cotton_acres) +
+          sum(15*grad(dday30_hay_fn, dday30)*dday30_dat$hay_acres) +
+          sum(15*grad(dday30_wheat_fn, dday30)*dday30_dat$wheat_acres) +
+          sum(15*grad(dday30_soybean_fn, dday30)*dday30_dat$soybean_acres))
+
+dday30_temp2 <- dday30_base + (sum((30*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+          sum((30*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
+          sum((30*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
+          sum((30*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
+          sum((30*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
+
+dday30_temp3 <- dday30_base + (sum((45*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+          sum((45*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
+          sum((45*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
+          sum((45*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
+          sum((45*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
+
+dday30_temp4 <- dday30_base + (sum((60*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+          sum((60*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
+          sum((60*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
+          sum((60*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
+          sum((60*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
+
+dday30_temp5 <- dday30_base + (sum((75*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+          sum((75*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
+          sum((75*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
+          sum((75*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
+          sum((75*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
+
+adapt2_dday30 <- data.frame(temp = "Degree Day (30C)",
+                          model = "Adaptation w/o Crop-switching",
+                     rev = c(dday30_base, dday30_temp1, dday30_temp2, dday30_temp3, dday30_temp4, dday30_temp5))
+adapt2_dday30$change = 100*(adapt2_dday30$rev - first(adapt2_dday30$rev))/first(adapt2_dday30$rev)
+adapt2_dday30
+plot(x=0:5, adapt2_dday30$change)
+lines(x=0:5, adapt2_dday30$change)
+
+
+pdat <- rbind(adapt1_tavg, adapt1_dday10_30, adapt1_dday30, adapt2_tavg, adapt2_dday10_30, adapt2_dday30)
+pdat$c <- seq(0,5)
+
+
+# Adaptation with Crop-switching
+
+
+
+ggplot(pdat, aes(x=c, y=change, color = temp, group = model)) + 
+  theme_tufte() +    
+  geom_line() + 
+  # geom_label(data = filter(pdat, c == 5), label = "Adaptation w/o") +
+  xlab('Change in Temperature (C)') +
+  ylab("Percentage Change from Baseline (+0C)") + 
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
+  scale_y_continuous(labels=function(x) paste0(x,"%")) +
+  facet_wrap(~temp) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey", alpha = 0.5) +
+  theme(legend.position = 'none')
+
+
+
+
+
+
+#---------------------
+# p1 <- ggplot(dplot, aes(x = x, y = y/1000000, color = crop)) + 
+#   theme_tufte() +    
+#   geom_line() + 
+#   #xlab('Average Temperature (C)') +
+#   xlab(NULL) + 
+#   ylab("Value of Activity \n ($1 million)") + 
+#   annotate("text", x = 12, y = 14, label = "Wheat", color = "blue", size = 4) +
+#   annotate("text", x = 16, y = 29, label = "Corn", color = "red", size = 4) +
+#   annotate("text", x = 21, y = 29, label = "Cotton", color = "green", size = 4) +
+#   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+#   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+#   theme(legend.position = 'top') + theme(
+#                          #legend.position = c(0.05, 0.9),
+#                          #legend.title = element_blank(),
+#                          #legend.background = element_rect(
+#                          #        size=0.5, linetype="solid", 
+#                          #\       colour = "grey"),
+#                          legend.position = "none",
+#                          axis.text.x = element_blank(),
+#                          #axis.text.y = element_blank(),
+#                          axis.ticks.x = element_blank(),
+#                          #axis.ticks.y = element_blank(),
+#                          #panel.border = element_rect(fill = NA),
+#                          plot.margin = unit(c(0, 0, 3, 0), "cm")) 
+# p1
+# dat$acres = rowSums(dat[, c("wheat_a", "corn_a", "cotton_a")], na.rm = TRUE)
+# p2 <- ggplot(dat, aes(tavg)) + 
+#   ylim(0, 0.18) +
+#   theme_tufte() +
+#   geom_density(aes(weight = acres/sum(acres)), color = "grey") +
+#   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+#   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+#   ylab("Density") +
+#   scale_x_continuous(breaks = 0:30) +
+#   xlab("Average Temperature(C)")
+# p2
+# ggdraw() + draw_plot(p1) + draw_plot(p2, 0, height = .30, width = 1.01)
+# ggsave("figures/empirical_graph.pdf", width = 6, height = 4)
+# 
