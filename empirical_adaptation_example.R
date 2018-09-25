@@ -8,6 +8,7 @@ slope <- function(x1, y1, x2, y2){
   return(m)
 }
 
+# Load data east of 100th degree
 mdat <- as.data.frame(readRDS("data/full_ag_data.rds"))
 dat <- filter(mdat, abs(long) <= 100)
 
