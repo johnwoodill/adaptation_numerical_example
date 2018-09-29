@@ -968,7 +968,44 @@ ggsave("figures/main_plot.pdf", width = 6, height = 4.5)
 # ggsave("figures/main_plot.svg", width = 6, height = 4.5)
 
 
+atext2 <- data.frame(temp = "Average Temperature (C)",
+                    x = c(3.5, 2.7, 3.7),
+                    y = c(-14, -24, -5),
+                    model= c(
+                             #"Marginal Effect \n w/ Adaptation", 
+                             "Marginal Effect \n w/o Adaptation", 
+                             "NL w/o Adaptation", 
+                             "NL w/ Adaptation"))
 
+ggplot(filter(pdat, temp == "Average Temperature (C)"), aes(x=c, y=change, color=model, group = model)) + 
+  theme_tufte(base_size = 11) +    
+  geom_line() +
+  # geom_line(aes(color=model)) + 
+  # geom_label(data = filter(pdat, c == 5), label = "Adaptation w/o") +
+  geom_text(data = atext2, aes(x=x, y=y, label=model, color=model, group=model), size = 2.8) +
+  # annotate("text", x = 4, y = -5, label = "Adaptation w/ \n Crop-switching", color = "blue", size = 3) +
+  # annotate("text", x = 4, y = -18, label = "Adaptation w/o \n Crop-switching", color = "darkgreen", size = 3) +
+  # annotate("text", x = 16, y = 29, label = "Corn", color = "red", size = 4) +
+  # annotate("text", x = 21, y = 29, label = "Cotton", color = "green", size = 4) +
+  xlab('Change in Temperature (C)') +
+  ylab("Percentage Change from Baseline (+0C)") + 
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
+  scale_y_continuous(labels=function(x) paste0(x,"%")) +
+  facet_wrap(~temp) +
+  scale_colour_manual(values=c(
+                               #"blue1", # ME w/ Adaptation line
+                               "#377eb8", # ME w/o Adaptation line
+                               #"blue1", # ME w Adaptation text 
+                               "#377eb8", # ME w/O Adaptation text 
+                               "#4daf4a", # NL w/ Aadptation text 
+                               "#e41a1c", # NL w/o Adaptation text 
+                               "#e41a1c", 
+                               "#4daf4a")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey", alpha = 0.5) +
+  theme(legend.position = 'none')
+ggsave("figures/tavg_main_plot.pdf", width = 6, height = 4)
 
 
 #---------------------
