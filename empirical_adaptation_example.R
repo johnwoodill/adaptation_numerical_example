@@ -147,7 +147,8 @@ tavg_pdat$crop_var <- factor(tavg_pdat$crop_var,
                              labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
                                         "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
-ggplot(tavg_pdat, aes(x = tavg, y = value, color = crop_var)) + 
+ggplot(filter(tavg_pdat, crop_var %in% c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = tavg, y = value, color = crop_var)) + 
   theme_tufte() +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
@@ -159,7 +160,7 @@ ggplot(tavg_pdat, aes(x = tavg, y = value, color = crop_var)) +
   xlab("Average Temperature") +
   scale_x_continuous(breaks = seq(10, 30, by = 4)) +
   NULL
-ggsave("figures/bins_tavg.pdf", width = 6, height = 4)
+ggsave("figures/bins_tavg.pdf", width = 7, height = 4)
 
 # Degree Day 10_30 plot
 dday10_30_pdat <- gather(dday10_30_dat, key = crop_var, value = value, -dday10_30)
@@ -171,7 +172,8 @@ dday10_30_pdat$crop_var <- factor(dday10_30_pdat$crop_var,
                                         "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 
-ggplot(dday10_30_pdat, aes(x = dday10_30, y = value, color = crop_var)) + 
+ggplot(filter(dday10_30_pdat, crop_var %in% c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = dday10_30, y = value, color = crop_var)) + 
   theme_tufte() +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
@@ -186,7 +188,7 @@ ggplot(dday10_30_pdat, aes(x = dday10_30, y = value, color = crop_var)) +
   
   NULL
 
-ggsave("figures/bins_dday10_30.pdf", width = 6, height = 4)
+ggsave("figures/bins_dday10_30.pdf", width = 7, height = 4)
 
 # Degree Day 30 Plot
 dday30_pdat <- gather(dday30_dat, key = crop_var, value = value, -dday30)
@@ -198,7 +200,8 @@ dday30_pdat$crop_var <- factor(dday30_pdat$crop_var,
                                         "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 
-ggplot(dday30_pdat, aes(x = dday30, y = value, color = crop_var)) + 
+ggplot(filter(dday30_pdat, crop_var %in% c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = dday30, y = value, color = crop_var)) + 
   theme_tufte() +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
@@ -212,7 +215,7 @@ ggplot(dday30_pdat, aes(x = dday30, y = value, color = crop_var)) +
   scale_x_continuous(breaks = c(3, 30, 56, 82, 109, 135, 165)) +
   NULL
 
-ggsave("figures/bins_dday30.pdf", width = 6, height = 4)
+ggsave("figures/bins_dday30.pdf", width = 7, height = 4)
 
 # Build functions
 # tavg_corn_fn <- approxfun(locpoly(tavg_dat$tavg, tavg_dat$corn_rev, bandwidth = 5))
