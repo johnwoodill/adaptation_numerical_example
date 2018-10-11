@@ -3,6 +3,9 @@ library(ggthemes)
 library(cowplot)
 library(numDeriv)
 
+# Number of bins in data
+bins <- 30
+
 slope <- function(x1, y1, x2, y2){
   m = (y2 - y1)/(x2 - x1)
   return(m)
@@ -67,9 +70,9 @@ dat$wheat_a <- remove_outliers(dat$wheat_a)
 dat$soybean_a <- remove_outliers(dat$soybean_a)
 
 # Cut into bins
-dat$ftavg <- cut(dat$tavg, 10, labels = 1:10)
-dat$fdday10_30 <- cut(dat$dday10_30, 10, labels = 1:10)
-dat$fdday30 <- cut(dat$dday30, 10, labels = 1:10)
+dat$ftavg <- cut(dat$tavg, bins, labels = 1:bins)
+dat$fdday10_30 <- cut(dat$dday10_30, bins, labels = 1:bins)
+dat$fdday30 <- cut(dat$dday30, bins, labels = 1:bins)
 
 tavg_dat <- dat %>% 
   group_by(ftavg) %>% 
