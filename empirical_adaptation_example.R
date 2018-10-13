@@ -278,8 +278,8 @@ dday30_p_soybean_fn <- approxfun(dday30_dat$dday30, dday30_dat$p_soybean_a)
 
 
 
-int_pdat <- data.frame(temp = rep(c("Average Temp. (C)", "Degree Day (10-30C)", "Degree Day (30C)"), each = 50),
-                       crop = rep(c("Corn", "Cotton", "Hay", "Wheat", "Soybean"), each = 10),
+int_pdat <- data.frame(temp = rep(c("Average Temp. (C)", "Degree Day (10-30C)", "Degree Day (30C)"), each = bins*5),
+                       crop = rep(c("Corn", "Cotton", "Hay", "Wheat", "Soybean"), each = bins),
                        x = c(rep(tavg_dat$tavg, 5), rep(dday10_30_dat$dday10_30, 5), rep(dday30_dat$dday30, 5)),
                        y = c(tavg_corn_fn(tavg_dat$tavg), tavg_cotton_fn(tavg_dat$tavg), tavg_hay_fn(tavg_dat$tavg), tavg_wheat_fn(tavg_dat$tavg), tavg_soybean_fn(tavg_dat$tavg),
                              dday10_30_corn_fn(dday10_30_dat$dday10_30), dday10_30_cotton_fn(dday10_30_dat$dday10_30), dday10_30_hay_fn(dday10_30_dat$dday10_30), dday10_30_wheat_fn(dday10_30_dat$dday10_30), dday10_30_soybean_fn(dday10_30_dat$dday10_30),
@@ -290,6 +290,7 @@ ggplot(int_pdat, aes(x=x, y=y, color = crop)) +
   theme_tufte() +    
   geom_line() + 
   ylab("Revenue/Acre") +
+  xlab(NULL) +
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
   annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
   facet_wrap(temp~crop) +
