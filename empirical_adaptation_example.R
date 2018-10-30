@@ -278,6 +278,8 @@ dday30_p_soybean_fn <- approxfun(dday30_dat$dday30, dday30_dat$p_soybean_a)
 
 
 
+
+
 int_pdat <- data.frame(temp = rep(c("Average Temp. (C)", "Degree Day (10-30C)", "Degree Day (30C)"), each = bins*5),
                        crop = rep(c("Corn", "Cotton", "Hay", "Wheat", "Soybean"), each = bins),
                        x = c(rep(tavg_dat$tavg, 5), rep(dday10_30_dat$dday10_30, 5), rep(dday30_dat$dday30, 5)),
