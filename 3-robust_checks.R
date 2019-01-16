@@ -1,3 +1,15 @@
+library(tidyverse)
+
+# Load data
+# tavg_dat_bins30 <- readRDS("data/tavg_dat_bins_30.rds")
+# dday10_30_dat_bins30 <- readRDS("data/dday10_30_dat_bins_30.rds")
+# dday30_dat_bins30 <- readRDS("data/dday30_dat_bins_30.rds")
+# 
+# bins_30 <- data.frame(temp = rep(c("Average Temperature (C)", "Degree Day (10-30C)", "Degree Day (30C)"), 3, each = 6),
+#                       model = rep(c("Total Effect", "Adaptation w/o Crop-switching", "Total Effect w/ Crop-switching"), each = 18))
+# bins_30
+
+# Results from 2-empirical_adaptation_example.R
 bins_30 <- structure(list(temp = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 2L, 
 2L, 2L, 2L, 2L, 2L, 3L, 3L, 3L, 3L, 3L, 3L, 1L, 1L, 1L, 1L, 1L, 
 1L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 3L, 3L, 3L, 3L, 3L, 1L, 1L, 1L, 
@@ -190,7 +202,6 @@ atext2 <- data.frame(temp = "Average Temperature (C)",
                     x = c(3.5, 2.7, 3.7),
                     y = c(-14, -24, -5),
                     model= c(
-                             #"Marginal Effect \n w/ Adaptation", 
                              "Marginal Effect \n w/o Adaptation", 
                              "NL w/o Adaptation", 
                              "NL w/ Adaptation"))
@@ -198,13 +209,6 @@ atext2 <- data.frame(temp = "Average Temperature (C)",
 ggplot(bindat, aes(x=c, y=change, color=model)) + 
   theme_tufte(base_size = 11) +    
   geom_line() +
-  # geom_line(aes(color=model)) + 
-  # geom_label(data = filter(pdat, c == 5), label = "Adaptation w/o") +
-  # geom_text(data = atext2, aes(x=x, y=y, label=model, color=model, group=model), size = 2.8) +
-  # annotate("text", x = 4, y = -5, label = "Adaptation w/ \n Crop-switching", color = "blue", size = 3) +
-  # annotate("text", x = 4, y = -18, label = "Adaptation w/o \n Crop-switching", color = "darkgreen", size = 3) +
-  # annotate("text", x = 16, y = 29, label = "Corn", color = "red", size = 4) +
-  # annotate("text", x = 21, y = 29, label = "Cotton", color = "green", size = 4) +
   xlab('Change in Temperature (C)') +
   ylab("Percentage Change from Baseline (+0C)") + 
   annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
@@ -212,15 +216,34 @@ ggplot(bindat, aes(x=c, y=change, color=model)) +
   scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
   scale_y_continuous(labels=function(x) paste0(x,"%")) +
   facet_wrap(bins~temp, ncol = 3, scales = "free") +
-  # scale_colour_manual(values=c(
-  #                              #"blue1", # ME w/ Adaptation line
-  #                              "#377eb8", # ME w/o Adaptation line
-  #                              #"blue1", # ME w Adaptation text 
-  #                              "#377eb8", # ME w/O Adaptation text 
-  #                              "#4daf4a", # NL w/ Aadptation text 
-  #                              "#e41a1c", # NL w/o Adaptation text 
-  #                              "#e41a1c", 
-  #                              "#4daf4a")) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey", alpha = 0.5) +
   theme(legend.position = 'none')
-ggsave("figures/robust_main_plot.pdf", width = 8, height = 6)
+ggsave("figures/6-robust_main_plot.pdf", width = 8, height = 6)
+
+dday30_dat <- readRDS("data/dday30_dat_bins_30.rds")
+
+# Degree Day 30 10-bin Plot
+dday30_pdat <- gather(dday30_dat, key = crop_var, value = value, -dday30)
+dday30_pdat$crop_var <- factor(dday30_pdat$crop_var, 
+                             levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
+                                        'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a',
+                                        'corn_acres', 'cotton_acres', 'hay_acres', 'wheat_acres', 'soybean_acres'),
+                             labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
+                                        "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
+
+ggplot(filter(dday30_pdat, crop_var %in% c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = dday30, y = value, color = crop_var)) + 
+  theme_tufte() +
+  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
+  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  geom_line() +
+  facet_wrap(~crop_var, scales = 'free', ncol = 5) +
+  theme(legend.position = 'none',
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ylab(NULL) +
+  xlab("Degree Days (30C)") +
+  scale_x_continuous(breaks = c(3, 30, 56, 82, 109, 135, 165)) +
+  NULL
+
+ggsave("figures/3-bins_dday30.pdf", width = 7, height = 4)
