@@ -36,7 +36,7 @@ ggplot(tavg_pdat, aes(x = tavg, y = value)) +
   facet_wrap(~crop_var, scales = 'free', ncol = 5) +
   NULL
 
-ggsave("figures/1-bins_tavg.pdf", width = 7, height = 4)
+ggsave("figures/1-bins_tavg.png", width = 7, height = 4)
 
 
 
@@ -69,7 +69,7 @@ ggplot(dday10_30_pdat, aes(x = dday10_30, y = value)) +
                      labels=c("1k", "1.5k", "2k", "2.5k", "3k")) +
   NULL
 
-ggsave("figures/2-bins_dday10_30.pdf", width = 7, height = 4)
+ggsave("figures/2-bins_dday10_30.png", width = 7, height = 4)
 
 
 
@@ -100,7 +100,7 @@ ggplot(dday30_pdat, aes(x = dday30, y = value)) +
   
   NULL
 
-ggsave("figures/3-bins_dday30.pdf", width = 7, height = 4)
+ggsave("figures/3-bins_dday30.png", width = 7, height = 4)
 
 
 
@@ -115,7 +115,7 @@ ggplot(int_pdat, aes(x=x, y=y)) +
         panel.border = element_rect(colour = "grey", fill=NA, size=1)) +
   facet_wrap(temp~crop, scales = 'free', ncol = 5)
 
-ggsave("figures/a1-interp_rev_plot.pdf", height = 6, width = 8)
+ggsave("figures/a1-interp_rev_plot.png", height = 6, width = 8)
 
 
 
@@ -137,7 +137,7 @@ ggplot(filter(pdat, temp == "Average Temperature (C)"), aes(x=c, y=change, linet
         panel.border = element_rect(colour = "grey", fill=NA, size=1)) +
   NULL
   
-ggsave("figures/4-tavg_main_plot.pdf", width = 6, height = 4)
+ggsave("figures/4-tavg_main_plot.png", width = 6, height = 4)
 
 
 
@@ -168,7 +168,7 @@ ggplot(pdat, aes(x=c, y=change, linetype = model)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey", alpha = 0.5) +
   theme(legend.position = 'none')
 
-ggsave("figures/5-main_plot.pdf", width = 7, height = 5)
+ggsave("figures/5-main_plot.png", width = 7, height = 5)
 
 
 
