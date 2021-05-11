@@ -1,5 +1,7 @@
 library(tidyverse)
 
+setwd("~/Projects/adaptation_numerical_example/")
+
 # Number of BINS in data
 BINS <- c(5, 10, 20, 30)
 
