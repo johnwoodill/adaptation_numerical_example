@@ -206,44 +206,56 @@ atext2 <- data.frame(temp = "Average Temperature (C)",
                              "NL w/o Adaptation", 
                              "NL w/ Adaptation"))
 
-ggplot(bindat, aes(x=c, y=change, color=model)) + 
-  theme_tufte(base_size = 11) +    
+levels(bindat$model)
+
+bindat$model <- factor(bindat$model, labels = c("NL w/o Adaptation", "Marginal Effect w/o Adaptation", "NL w Adaptation"))
+bindat$model <- factor(bindat$model, levels = c("Marginal Effect w/o Adaptation", "NL w/o Adaptation", "NL w Adaptation"))
+
+ggplot(bindat, aes(x=c, y=change, linetype=model, shape=model)) + 
+  theme_minimal(12) +
   geom_line() +
-  xlab('Change in Temperature (C)') +
-  ylab("Percentage Change from Baseline (+0C)") + 
-  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
-  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+  geom_point() +
+  labs(x="Change in Temperature (C)", y="Percentage Change from Baseline (+0C)", linetype=NULL, shape=NULL) +
   scale_x_continuous(breaks = 0:5, labels = c("+0C", "+1C", "+2C", "+3C", "+4C", "+5C")) +
   scale_y_continuous(labels=function(x) paste0(x,"%")) +
   facet_wrap(bins~temp, ncol = 3, scales = "free") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey", alpha = 0.5) +
-  theme(legend.position = 'none')
-ggsave("figures/6-robust_main_plot.pdf", width = 8, height = 6)
+  theme(plot.title = element_text(hjust = 0.5, color='black'),
+        panel.border = element_rect(colour = "grey", fill=NA, size=1),
+        legend.position="bottom") +
+  NULL
+
+ggsave("figures/7-robust_main_plot.png", width = 10, height = 8)
+
+
+
+
 
 dday30_dat <- readRDS("data/dday30_dat_bins_30.rds")
 
-# Degree Day 30 10-bin Plot
+
+
+# Degree Day 30 30-bin Plot
 dday30_pdat <- gather(dday30_dat, key = crop_var, value = value, -dday30)
 dday30_pdat$crop_var <- factor(dday30_pdat$crop_var, 
                              levels = c('corn_rev', 'cotton_rev', 'hay_rev', 'wheat_rev', 'soybean_rev',
                                         'p_corn_a', 'p_cotton_a', 'p_hay_a', 'p_wheat_a', 'p_soybean_a',
                                         'corn_acres', 'cotton_acres', 'hay_acres', 'wheat_acres', 'soybean_acres'),
-                             labels = c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
+                             labels = c("Corn Revenue", "Cotton Revenue", "Hay Revenue", "Wheat Revenue", "Soybean Revenue",
                                         "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)",
                                         "Corn Acres", "Cotton Acres", "Hay Acres", "Wheat Acres", "Soybean Acres"))
 
-ggplot(filter(dday30_pdat, crop_var %in% c("Corn Rev.", "Cotton Rev.", "Hay Rev", "Wheat Rev.", "Soybean Rev.",
-                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = dday30, y = value, color = crop_var)) + 
-  theme_tufte() +
-  annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf, color = "grey") +
-  annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf, color = "grey") +
+ggplot(filter(dday30_pdat, crop_var %in% c("Corn Revenue", "Cotton Revenue", "Hay Revenue", "Wheat Revenue", "Soybean Revenue",
+                                        "P(Corn Acres)", "P(Cotton Acres)", "P(Hay Acres)", "P(Wheat Acres)", "P(Soybean Acres)")), aes(x = dday30, y = value, group = crop_var)) + 
+  theme_minimal(12) +
   geom_line() +
   facet_wrap(~crop_var, scales = 'free', ncol = 5) +
-  theme(legend.position = 'none',
-        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(plot.title = element_text(hjust = 0.5, color='black'),
+        panel.border = element_rect(colour = "grey", fill=NA, size=1),
+        legend.position="bottom") +
   ylab(NULL) +
   xlab("Degree Days (30C)") +
-  scale_x_continuous(breaks = c(3, 30, 56, 82, 109, 135, 165)) +
+  scale_x_continuous(breaks = seq(0, 165, 30)) +
   NULL
 
-ggsave("figures/3-bins_dday30.pdf", width = 7, height = 4)
+ggsave("figures/8-robust_30bins_dday30.png", width = 8, height = 5)
