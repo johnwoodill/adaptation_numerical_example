@@ -225,7 +225,7 @@ ggplot(bindat, aes(x=c, y=change, linetype=model, shape=model)) +
         legend.position="bottom") +
   NULL
 
-ggsave("figures/7-robust_main_plot.png", width = 10, height = 8)
+ggsave("figures/7-robust_main_plot.png", width = 12, height = 10)
 
 
 
