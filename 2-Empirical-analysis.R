@@ -8,7 +8,7 @@ library(numDeriv)
 # [1] Setup bins and Load data
 # [2] Approximate functions for temperature and revenue and proportion of acres
 # [3] Estimate four equations
-#     * First-order approximation without adaptaiton
+#     * First-order approximation without adaptation
 #     * First-order approximation with adaptation
 #     * Nonlinear effects without adaptaiton
 #     * Nonlinear effects with adaptation
@@ -26,11 +26,11 @@ library(numDeriv)
 # +5C = +700 Degree Days between 10-30
 
 # Degree Days > 30
-# +1C = +15 Degree Days between 10-30
-# +2C = +30 Degree Days between 10-30
-# +3C = +45 Degree Days between 10-30
-# +4C = +60 Degree Days between 10-30
-# +5C = +75 Degree Days between 10-30
+# +1C = +15 Degree Days between 30
+# +2C = +30 Degree Days between 30
+# +3C = +45 Degree Days between 30
+# +4C = +60 Degree Days between 30
+# +5C = +75 Degree Days between 30
 
 
 
@@ -574,44 +574,44 @@ tavg_base <- sum(tavg_dat$corn_rev*tavg_dat$corn_acres) +
              sum(tavg_dat$soybean_rev*tavg_dat$soybean_acres)
 
 # Apply shift in temperature (+1C Average Temperature)
-tavg_temp1 <- tavg_base + 
+  tavg_temp1 <- tavg_base + 
   (sum(grad(tavg_corn_fn, tavg)*tavg_dat$corn_acres) + 
-          sum(grad(tavg_cotton_fn, tavg)*1*tavg_dat$cotton_acres) +
-          sum(grad(tavg_hay_fn, tavg)*1*tavg_dat$hay_acres) +
-          sum(grad(tavg_wheat_fn, tavg)*1*tavg_dat$wheat_acres) +
-          sum(grad(tavg_soybean_fn, tavg)*1*tavg_dat$soybean_acres))
+  sum(grad(tavg_cotton_fn, tavg)*1*tavg_dat$cotton_acres) +
+  sum(grad(tavg_hay_fn, tavg)*1*tavg_dat$hay_acres) +
+  sum(grad(tavg_wheat_fn, tavg)*1*tavg_dat$wheat_acres) +
+  sum(grad(tavg_soybean_fn, tavg)*1*tavg_dat$soybean_acres))
 
 # Apply shift in temperature (+2C Average Temperature)
-tavg_temp2 <- tavg_base + 
+  tavg_temp2 <- tavg_base + 
   (sum((2*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
-          sum((2*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
-          sum((2*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
-          sum((2*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
-          sum((2*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+  sum((2*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+  sum((2*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+  sum((2*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+  sum((2*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
 
 # Apply shift in temperature (+3C Average Temperature)
 tavg_temp3 <- tavg_base +
   (sum((3*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
-          sum((3*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
-          sum((3*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
-          sum((3*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
-          sum((3*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+  sum((3*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+  sum((3*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+  sum((3*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+  sum((3*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
 
 # Apply shift in temperature (+4C Average Temperature)
 tavg_temp4 <- tavg_base + 
   (sum((4*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
-          sum((4*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
-          sum((4*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
-          sum((4*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
-          sum((4*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+  sum((4*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+  sum((4*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+  sum((4*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+  sum((4*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
 
 # Apply shift in temperature (+5C Average Temperature)
 tavg_temp5 <- tavg_base + 
   (sum((5*grad(tavg_corn_fn, tavg))*tavg_dat$corn_acres) + 
-          sum((5*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
-          sum((5*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
-          sum((5*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
-          sum((5*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
+  sum((5*grad(tavg_cotton_fn, tavg))*tavg_dat$cotton_acres) +
+  sum((5*grad(tavg_hay_fn, tavg))*tavg_dat$hay_acres) +
+  sum((5*grad(tavg_wheat_fn, tavg))*tavg_dat$wheat_acres) +
+  sum((5*grad(tavg_soybean_fn, tavg))*tavg_dat$soybean_acres))
 
 # Bind data
 adapt2_tavg <- data.frame(temp = "Average Temperature (C)",
