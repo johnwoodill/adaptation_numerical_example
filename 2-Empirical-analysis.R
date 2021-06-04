@@ -714,28 +714,32 @@ dday30_temp1 <- dday30_base +
   sum(15*grad(dday30_soybean_fn, dday30)*dday30_dat$soybean_acres))
 
 # Apply shift in temperature (+30 Degree Days 30C)
-dday30_temp2 <- dday30_base + (sum((30*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+dday30_temp2 <- dday30_base + 
+  (sum((30*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
   sum((30*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
   sum((30*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
   sum((30*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
   sum((30*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
 
 # Apply shift in temperature (+45 Degree Days 30C)
-dday30_temp3 <- dday30_base + (sum((45*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+dday30_temp3 <- dday30_base +
+  (sum((45*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
   sum((45*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
   sum((45*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
   sum((45*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
   sum((45*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
 
 # Apply shift in temperature (+60 Degree Days 30C)
-dday30_temp4 <- dday30_base + (sum((60*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+dday30_temp4 <- dday30_base + 
+  (sum((60*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
   sum((60*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
   sum((60*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
   sum((60*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
   sum((60*grad(dday30_soybean_fn, dday30))*dday30_dat$soybean_acres))
 
 # Apply shift in temperature (+75 Degree Days 30C)
-dday30_temp5 <- dday30_base + (sum((75*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
+dday30_temp5 <- dday30_base + 
+  (sum((75*grad(dday30_corn_fn, dday30))*dday30_dat$corn_acres) + 
   sum((75*grad(dday30_cotton_fn, dday30))*dday30_dat$cotton_acres) +
   sum((75*grad(dday30_hay_fn, dday30))*dday30_dat$hay_acres) +
   sum((75*grad(dday30_wheat_fn, dday30))*dday30_dat$wheat_acres) +
