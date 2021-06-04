@@ -349,7 +349,7 @@ lines(x=0:5, adapt1_dday30$change)
 
 #----------------------------------------------------------------------------------
 
-### First-order approximation without adaptation
+### First-order approximation with adaptation
 
 
 # Average Temperatures and cut end points
